@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Test Aquazul</title></head>
+<body style="font-family:monospace;padding:20px;background:#1a1a1a;color:#00ff00">
+<h2>🔧 Diagnóstico Aquazul</h2>
+<div id="log"></div>
+<script>
+function log(msg, ok) {
+  const d = document.getElementById('log');
+  const color = ok === true ? '#00ff00' : ok === false ? '#ff4444' : '#ffaa00';
+  d.innerHTML += '<div style="color:'+color+';margin:4px 0">' + msg + '</div>';
+}
+
+async function run() {
+  log('Iniciando diagnóstico...', null);
+
+  // Test 1: servidor
+  try {
+    const r = await fetch('http://localhost:8000/api/health');
+    const d = await r.json();
+    log('✅ Servidor OK: ' + JSON.stringify(d), true);
+  } catch(e) {
+    log('❌ Servidor NO responde: ' + e.message, false);
+    log('   → Asegúrate de que start.bat esté corriendo', false);
+    return;
+  }
+
+  // Test 2: login
+  try {
+    const r = await fetch('http://localhost:8000/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: 'admin@aquazul.co', password: 'Admin2024*'})
+    });
+    const d = await r.json();
+    if (d.token) {
+      log('✅ Login OK: ' + d.user.nombre + ' (' + d.user.rol + ')', true);
+      localStorage.setItem('az_token', d.token);
+      localStorage.setItem('az_user', JSON.stringify(d.user));
+      log('✅ Token guardado en localStorage', true);
+      log('', null);
+      log('🎉 TODO OK → <a href="/" style="color:#00aaff">Ir al sistema</a>', true);
+    } else {
+      log('❌ Login falló: ' + JSON.stringify(d), false);
+    }
+  } catch(e) {
+    log('❌ Error en login: ' + e.message, false);
+  }
+
+  // Test 3: clientes
+  try {
+    const tok = localStorage.getItem('az_token');
+    if (tok) {
+      const r = await fetch('http://localhost:8000/api/clientes', {
+        headers: {'Authorization': 'Bearer ' + tok}
+      });
+      const d = await r.json();
+      log('✅ Clientes: ' + d.length + ' registrados', true);
+    }
+  } catch(e) {
+    log('⚠️ Clientes: ' + e.message, null);
+  }
+}
+run();
+</script>
+</body>
+</html>

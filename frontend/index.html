@@ -1,0 +1,3044 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Aquazul Piscinas Sanas</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A7AC7;--blue-dk:#0F5A9E;--blue-lt:#EBF5FB;
+  --teal:#1DAA8A;--teal-dk:#148A6E;--teal-lt:#E8F8F4;
+  --sun:#F5C842;--sun-dk:#D4A017;
+  --red:#C0392B;--red-lt:#FDEDEC;
+  --amber:#CA6F1E;--amber-lt:#FEF5E7;
+  --green:#1A8A45;--green-lt:#EAFAF1;
+  --bg:#F0F4F8;--surface:#fff;--surface2:#F7FAFC;--surface3:#EDF2F7;
+  --text:#1A2332;--text2:#64748B;--text3:#94A3B8;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --r:10px;--rl:14px;--rxl:20px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.07);
+  --shadow:0 4px 16px rgba(0,0,0,.09);
+  --shadow-lg:0 12px 36px rgba(0,0,0,.13);
+}
+html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);font-size:14px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* LOGIN */
+.login-screen{display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:center}
+.login-screen.show{display:flex}
+.login-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0F5A9E 0%,#1A7AC7 45%,#148A6E 100%)}
+.login-box{position:relative;background:#fff;border-radius:20px;padding:40px 36px;width:min(400px,94vw);box-shadow:0 12px 36px rgba(0,0,0,.13)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .brand{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#0F5A9E;margin-top:10px}
+.login-logo .sub{font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:1.5px}
+
+/* FORMS */
+.frow{margin-bottom:14px}
+.flbl{font-size:11px;font-weight:600;color:#64748B;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.finput{width:100%;padding:10px 14px;border:1.5px solid #CBD5E1;border-radius:10px;font-size:14px;background:#fff;color:#1A2332;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s}
+.finput:focus{border-color:#1A7AC7;box-shadow:0 0 0 3px rgba(26,122,199,.12)}
+textarea.finput{resize:vertical;min-height:80px;line-height:1.6}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:10px;font-size:13px;border:1.5px solid #CBD5E1;background:#fff;cursor:pointer;color:#1A2332;font-weight:600;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:#0F5A9E;color:#fff;border-color:#0F5A9E}
+.btn.primary:hover{background:#1A7AC7}
+.btn.teal{background:#148A6E;color:#fff;border-color:#148A6E}
+.btn.teal:hover{background:#1DAA8A}
+.btn.danger{background:#FDEDEC;color:#C0392B;border-color:#C0392B}
+.btn.ghost{background:transparent;border-color:transparent;color:#64748B}
+.btn.sm{padding:5px 11px;font-size:12px}
+.btn.full{width:100%}
+.btn.lg{padding:13px 24px;font-size:15px;border-radius:14px}
+.btn:disabled{opacity:.5;pointer-events:none}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.b-pending{background:#FEF5E7;color:#CA6F1E}
+.b-active{background:#EBF5FB;color:#0F5A9E}
+.b-done{background:#E8F8F4;color:#148A6E}
+.b-alert{background:#FDEDEC;color:#C0392B}
+.b-high{background:#FDEDEC;color:#C0392B}
+.b-med{background:#FEF5E7;color:#CA6F1E}
+.b-low{background:#EAFAF1;color:#1A8A45}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.card-hd{font-size:14px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-hd i{font-size:18px;color:#1A7AC7}
+.card-hd .card-actions{margin-left:auto;display:flex;gap:6px}
+
+/* PROGRESS */
+.prog-bar{height:6px;background:#EDF2F7;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .6s}
+
+/* TABLES */
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:10px 14px;font-size:10px;font-weight:700;color:#64748B;border-bottom:1px solid #E2E8F0;text-transform:uppercase;letter-spacing:.5px;background:#F7FAFC;white-space:nowrap}
+.tbl td{padding:11px 14px;border-bottom:1px solid #E2E8F0;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#F7FAFC}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,30,60,.45);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:28px;max-width:580px;width:94%;max-height:92vh;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,.13);animation:mIn .2s ease}
+@keyframes mIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-hd h2{font-family:'Syne',sans-serif;font-size:19px;font-weight:700}
+.modal-close{background:#F7FAFC;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#64748B}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1A2332;color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 12px 36px rgba(0,0,0,.13);transform:translateY(20px);opacity:0;transition:all .3s;z-index:9999;max-width:340px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#148A6E}
+.toast.error{background:#C0392B}
+.toast.warning{background:#CA6F1E}
+.toast i{font-size:18px}
+
+/* SPINNER */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOPBAR */
+.topbar{height:56px;background:#0F5A9E;display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(15,90,158,.35);flex-shrink:0}
+.t-logo{display:flex;align-items:center;gap:10px}
+.t-logo-mark{width:36px;height:36px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.t-logo-mark svg{width:28px;height:26px}
+.t-brand{font-family:'Syne',sans-serif;font-size:15px;color:#fff;font-weight:700}
+.t-sub{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1.5px}
+.t-right{display:flex;align-items:center;gap:8px}
+.t-role-sw{display:flex;background:rgba(255,255,255,.1);border-radius:20px;padding:3px;gap:2px}
+.t-role-btn{padding:4px 14px;border-radius:16px;font-size:12px;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,.75);font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;transition:all .2s}
+.t-role-btn.active{background:#fff;color:#0F5A9E}
+.t-bell{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;color:#fff;font-size:17px;border:none}
+.t-bell-dot{position:absolute;top:5px;right:5px;width:8px;height:8px;background:#F5C842;border-radius:50%;border:1.5px solid #0F5A9E;display:none}
+.t-user{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:24px;padding:4px 12px 4px 4px}
+.t-av{width:28px;height:28px;border-radius:50%;background:#F5C842;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5A3E00}
+.t-name{font-size:12px;color:#fff;font-weight:500}
+.t-logout{background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;padding:6px 10px;border-radius:10px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:4px}
+.t-logout:hover{background:rgba(255,255,255,.2)}
+
+/* LAYOUT */
+.app{display:none;flex-direction:column;height:100vh;overflow:hidden}
+.app.show{display:flex}
+.app-body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:#fff;border-right:1px solid #E2E8F0;overflow-y:auto;padding-bottom:20px;flex-shrink:0}
+.sidebar::-webkit-scrollbar{width:0}
+.nav-sec{font-size:9px;font-weight:700;color:#94A3B8;padding:18px 16px 6px;text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;cursor:pointer;color:#64748B;border-left:3px solid transparent;transition:all .15s;font-weight:500}
+.nav-item i{font-size:17px}
+.nav-item:hover{background:#F7FAFC;color:#1A2332}
+.nav-item.active{color:#1A7AC7;background:#EBF5FB;border-left-color:#1A7AC7}
+.nav-badge{margin-left:auto;background:#C0392B;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;display:none}
+.main-content{flex:1;overflow-y:auto;padding:24px}
+.page{display:none;animation:fadeIn .2s ease;max-width:1100px}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.ph h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.ph p{font-size:12px;color:#64748B;margin-top:3px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);position:relative;overflow:hidden;transition:transform .2s}
+.metric:hover{transform:translateY(-2px)}
+.metric::after{content:'';position:absolute;top:0;right:0;width:4px;height:100%}
+.m-blue::after{background:#1A7AC7}.m-teal::after{background:#1DAA8A}.m-sun::after{background:#D4A017}.m-red::after{background:#C0392B}
+.metric-lbl{font-size:10px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.metric-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;line-height:1}
+.m-blue .metric-val{color:#1A7AC7}.m-teal .metric-val{color:#148A6E}.m-sun .metric-val{color:#D4A017}.m-red .metric-val{color:#C0392B}
+.metric-note{font-size:11px;color:#64748B;margin-top:4px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+/* INFO BANNER */
+.info-banner{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:500}
+.info-banner.teal{background:#E8F8F4;border-left:3px solid #1DAA8A;color:#148A6E}
+.info-banner.blue{background:#EBF5FB;border-left:3px solid #1A7AC7;color:#0F5A9E}
+.info-banner.red{background:#FDEDEC;border-left:3px solid #C0392B;color:#C0392B}
+.info-banner.amber{background:#FEF5E7;border-left:3px solid #CA6F1E;color:#CA6F1E}
+
+/* ALERT ROW */
+.alert-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #E2E8F0;align-items:flex-start}
+.alert-row:first-child{padding-top:0}.alert-row:last-child{border-bottom:none;padding-bottom:0}
+.alert-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.aico-red{background:#FDEDEC;color:#C0392B}.aico-amber{background:#FEF5E7;color:#CA6F1E}
+.aico-blue{background:#EBF5FB;color:#1A7AC7}.aico-teal{background:#E8F8F4;color:#148A6E}
+
+/* BAR CHART */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:90px;padding-top:10px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+.bar-lbl{font-size:10px;color:#64748B}.bar-val{font-size:10px;font-weight:700;color:#1A2332}
+
+/* MAP */
+#map-admin{height:320px;border-radius:14px;overflow:hidden;border:1px solid #E2E8F0}
+#map-tech{height:240px;border-radius:14px;overflow:hidden;border:1px solid #E2E8F0;margin-bottom:16px;position:relative}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748B}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+
+/* CHIPS / ROUTE */
+.chip{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#F7FAFC;border-radius:10px;border:1.5px solid #E2E8F0;cursor:pointer;font-size:13px;margin-bottom:8px;font-weight:500;transition:all .15s;user-select:none}
+.chip:hover,.chip.sel{border-color:#1A7AC7;background:#EBF5FB;color:#0F5A9E}
+.chip-freq{margin-left:auto;font-size:10px;color:#94A3B8;background:#EDF2F7;padding:1px 7px;border-radius:10px}
+.chip.sel .chip-freq{background:rgba(26,122,199,.15);color:#0F5A9E}
+.ord-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-radius:10px;border:1px solid #E2E8F0;margin-bottom:8px;font-size:13px;font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.ord-num{width:24px;height:24px;border-radius:50%;background:#0F5A9E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+
+/* PRIO BTNS */
+.prio-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.prio-btn{padding:10px;border-radius:10px;font-size:12px;font-weight:600;border:1.5px solid #E2E8F0;cursor:pointer;background:#F7FAFC;color:#64748B;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s}
+.prio-btn i{font-size:20px}
+.prio-btn.sel-low{background:#EAFAF1;color:#1A8A45;border-color:#1A8A45}
+.prio-btn.sel-med{background:#FEF5E7;color:#CA6F1E;border-color:#CA6F1E}
+.prio-btn.sel-high{background:#FDEDEC;color:#C0392B;border-color:#C0392B}
+
+/* SVC TAG */
+.svc-tag{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:#EBF5FB;color:#0F5A9E;margin:1px}
+
+/* TECH CARDS */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tech-card{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .2s}
+.tech-card:hover{transform:translateY(-2px)}
+.tech-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+
+/* SERVICE CARDS */
+.svc-card{background:#fff;border:1.5px solid #E2E8F0;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07);transition:box-shadow .2s}
+.svc-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.09)}
+.svc-card.active-svc{border-color:#1A7AC7;box-shadow:0 0 0 3px rgba(26,122,199,.1)}
+.svc-card.done-svc{opacity:.75;border-color:#E8F8F4}
+.svc-hdr{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .15s}
+.svc-hdr:hover{background:#F7FAFC}
+.svc-body{border-top:1px solid #E2E8F0;background:#F7FAFC;display:none;padding:16px}
+.svc-card.open .svc-body{display:block}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* CHECKLIST */
+.cklist{list-style:none}
+.cklist li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #E2E8F0;font-size:13px;font-weight:500}
+.cklist li:last-child{border-bottom:none}
+.cklist input[type=checkbox]{width:17px;height:17px;accent-color:#1A7AC7;cursor:pointer;flex-shrink:0}
+.cklist label{cursor:pointer;flex:1}
+.cklist input:checked+label{color:#64748B;text-decoration:line-through}
+
+/* FOTO UPLOAD */
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.foto-slot{aspect-ratio:1;border-radius:10px;border:2px dashed #CBD5E1;background:#F7FAFC;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;transition:all .2s}
+.foto-slot:hover{border-color:#1A7AC7;background:#EBF5FB}
+.foto-slot img{width:100%;height:100%;object-fit:cover}
+.foto-slot .foto-placeholder{font-size:28px;color:#94A3B8;margin-bottom:4px}
+.foto-slot .foto-label{font-size:10px;color:#64748B;font-weight:500}
+.foto-slot .foto-remove{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;border:none;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center}
+.foto-slot:has(img) .foto-remove{display:flex}
+input[type=file].hidden-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.foto-modal-overlay{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center}
+.foto-modal-overlay.open{display:flex}
+.gallery-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.88)}
+.gallery-box{position:relative;z-index:2;width:min(94vw,700px);background:#1a1a2e;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;max-height:92svh}
+.gallery-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.gallery-title{font-size:14px;font-weight:600;color:#fff}
+.gallery-counter{font-size:12px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);padding:3px 9px;border-radius:20px}
+.gallery-close{background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.gallery-close:hover{background:rgba(255,255,255,.22)}
+.gallery-main{flex:1;display:flex;align-items:center;justify-content:center;min-height:240px;max-height:60svh;padding:12px;background:#111}
+.gallery-main img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+.gallery-main video{max-width:100%;max-height:100%;border-radius:8px;outline:none}
+.gallery-main .no-media{color:rgba(255,255,255,.4);font-size:13px;text-align:center}
+.gallery-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .2s}
+.gallery-nav:hover{background:rgba(255,255,255,.28)}
+.gallery-nav.prev{left:8px}
+.gallery-nav.next{right:8px}
+.gallery-nav:disabled{opacity:.2;cursor:default}
+.gallery-thumbs{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;flex-shrink:0;background:#111;scrollbar-width:none}
+.gallery-thumbs::-webkit-scrollbar{display:none}
+.gallery-thumb{width:52px;height:52px;object-fit:cover;border-radius:8px;cursor:pointer;border:2.5px solid transparent;opacity:.6;flex-shrink:0;transition:all .2s}
+.gallery-thumb.active{border-color:#1A7AC7;opacity:1}
+.gallery-thumb-vid{width:52px;height:52px;border-radius:8px;cursor:pointer;border:2.5px solid transparent;opacity:.6;flex-shrink:0;background:#0F5A9E;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;transition:all .2s}
+.gallery-thumb-vid.active{border-color:#1DAA8A;opacity:1}
+.foto-thumbs{display:flex;gap:4px;flex-wrap:wrap}
+.foto-thumb{width:36px;height:36px;object-fit:cover;border-radius:6px;cursor:pointer;border:1.5px solid var(--border);transition:transform .2s}.foto-thumb:hover{transform:scale(1.1)}
+.foto-modal-close{position:fixed;top:16px;right:16px;background:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* LOCATION STATUS */
+.loc-status-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px}
+.loc-status-bar.ok{background:#E8F8F4;color:#148A6E}
+.loc-status-bar.warn{background:#FEF5E7;color:#CA6F1E}
+.loc-status-bar.err{background:#FDEDEC;color:#C0392B}
+.loc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.loc-dot.ok{background:#1DAA8A;animation:pulse 2s infinite}
+.loc-dot.warn{background:#CA6F1E}
+.loc-dot.err{background:#C0392B}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TECH HEADER */
+.tech-view-header{background:linear-gradient(135deg,#0F5A9E 0%,#1A7AC7 60%,#148A6E 100%);border-radius:14px;padding:18px 20px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden}
+.tech-view-header::before{content:'';position:absolute;top:-30px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.06);border-radius:50%}
+.tech-hd{background:linear-gradient(135deg,#0F5A9E,#148A6E);border-radius:14px;padding:18px 20px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden}
+.tech-hd::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='20' cy='20' r='10'/%3E%3C/g%3E%3C/svg%3E")}
+.tech-pills{display:flex;gap:10px;margin-top:12px}
+.tech-pill{flex:1;background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(255,255,255,.2)}
+.tech-pill-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.tech-pill-lbl{font-size:10px;color:rgba(255,255,255,.75);margin-top:2px}
+
+/* PERMISSION BANNER */
+.perm-banner{background:linear-gradient(135deg,#0F5A9E,#148A6E);border-radius:14px;padding:18px;margin-bottom:16px;color:#fff;text-align:center;display:none}
+.perm-banner h3{font-family:'Syne',sans-serif;font-size:16px;margin-bottom:8px}
+.perm-banner p{font-size:12px;opacity:.85;margin-bottom:12px;line-height:1.6}
+.perm-btns{display:flex;gap:8px;justify-content:center}
+.perm-btn{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:5px}
+.perm-btn.granted{background:rgba(29,170,138,.3)}
+
+/* NAV TYPES (novedad) */
+.nov-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.nov-type-btn{padding:12px 8px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F7FAFC;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:#64748B;font-family:'Plus Jakarta Sans',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s}
+.nov-type-btn i{font-size:22px}
+.nov-type-btn.sel{border-color:#1A7AC7;background:#EBF5FB;color:#0F5A9E}
+
+/* ════════════════════════════════════════
+   RESPONSIVE MOBILE-FIRST
+════════════════════════════════════════ */
+
+/* ── TABLET ── */
+@media(max-width:900px){
+  .sidebar{width:200px}
+  .metrics{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .modal{width:95vw}
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl{min-width:520px}
+}
+
+/* ── MÓVIL ── */
+@media(max-width:600px){
+  /* Topbar */
+  .topbar{padding:0 10px;height:52px}
+  .t-sub,.t-name{display:none}
+  .t-brand{font-size:13px}
+
+  /* Ocultar sidebar del flujo normal — se muestra como drawer */
+  .sidebar{display:none!important}
+
+  /* Contenido ocupa todo */
+  .app-body{flex-direction:column}
+  .main-content{
+    width:100%;padding:14px 12px 20px;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    height:calc(100svh - 52px);box-sizing:border-box;
+  }
+
+  /* Métricas 2 col */
+  .metrics{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .metric{padding:12px 14px;border-radius:12px}
+  .metric-val{font-size:24px}
+  .metric-lbl{font-size:9px}
+  .metric-note{font-size:10px}
+
+  /* Two col → single */
+  .two-col{grid-template-columns:1fr;gap:10px}
+
+  /* Cards */
+  .card{padding:13px;border-radius:12px;margin-bottom:10px}
+  .card-hd{font-size:13px;margin-bottom:10px}
+
+  /* Tablas */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;margin:0 -2px}
+  .tbl{min-width:460px;font-size:12px}
+  .tbl th{padding:8px 10px;font-size:9px}
+  .tbl td{padding:8px 10px}
+
+  /* Modales bottom sheet */
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal{width:100vw;max-width:100vw;border-radius:20px 20px 0 0;
+    max-height:93svh;overflow-y:auto;padding:20px 16px 32px;
+    animation:slideUp .28s ease}
+  @keyframes slideUp{from{transform:translateY(60%);opacity:.6}to{transform:translateY(0);opacity:1}}
+  .modal-hd h2{font-size:16px}
+
+  /* Toast */
+  .toast{bottom:20px;right:12px;left:12px;max-width:none;border-radius:12px;font-size:12px}
+
+  /* Botones */
+  .btn.lg{padding:13px;font-size:14px;border-radius:12px}
+  .btn.full{width:100%}
+
+  /* Fotos */
+  .foto-grid{grid-template-columns:1fr 1fr!important;gap:6px}
+
+  /* Prio */
+  .prio-btns{gap:6px}
+  .prio-btn{padding:10px 6px;font-size:11px}
+  .prio-btn i{font-size:18px}
+
+  /* Mapa */
+  #map-admin{height:220px}
+  #map-tech{height:180px;margin-bottom:12px}
+
+  /* Tech */
+  .svc-card{border-radius:12px;margin-bottom:10px}
+  .svc-hdr{padding:12px 14px}
+  .svc-body{padding:12px 14px}
+  .tech-hd{border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .tech-pill-val{font-size:20px}
+
+  /* chips */
+  .chip{padding:9px 10px;font-size:12px}
+  .tech-grid{grid-template-columns:1fr}
+  .nov-type-grid{grid-template-columns:1fr 1fr;gap:6px}
+  .nov-type-btn{padding:10px 6px;font-size:11px}
+  .bar-chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .bar-chart{min-width:240px}
+  .info-banner{font-size:12px;padding:10px 12px}
+
+  /* Hamburguesa visible solo en móvil */
+  .ham-btn{display:flex}
+}
+
+/* ── LANDSCAPE MÓVIL ── */
+@media(max-width:900px) and (orientation:landscape) and (max-height:500px){
+  .sidebar{
+    position:fixed;top:52px;left:0;bottom:0;right:auto;
+    width:60px;height:auto;
+    flex-direction:column;border-top:none;border-right:1px solid var(--border);
+    box-shadow:2px 0 8px rgba(0,0,0,.06);
+  }
+  .sidebar .nav-sec{display:none}
+  .nav-item{flex-direction:column;border-top:none;border-left:3px solid transparent;min-width:60px}
+  .nav-item.active{border-top:none;border-left:3px solid #1A7AC7}
+  .main-content{padding-left:74px;padding-bottom:14px;height:calc(100svh - 52px)}
+}
+
+
+/* Quick actions (solo visible en móvil) */
+.quick-actions{display:none;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;
+  background:#fff;border:1px solid var(--border);border-radius:12px;cursor:pointer;
+  font-size:10px;font-weight:600;color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .15s}
+.qa-btn i{font-size:22px;color:var(--blue)}
+.qa-btn:active{transform:scale(.95);background:var(--blue-lt)}
+.hide-xs{display:inline}
+@media(max-width:600px){
+  .quick-actions{display:grid}
+  .hide-xs{display:none}
+}
+
+/* ── HAMBURGUESA ── */
+.ham-btn{display:none;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:9px;border:none;
+  background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;flex-shrink:0}
+.ham-btn:active{background:rgba(255,255,255,.25)}
+
+/* ── DRAWER ── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:490;backdrop-filter:blur(2px)}
+.drawer-overlay.open{display:block}
+.sidebar.drawer-open{
+  display:block!important;
+  position:fixed!important;top:0!important;left:0!important;bottom:0!important;right:auto!important;
+  width:260px!important;height:100%!important;z-index:500!important;
+  box-shadow:4px 0 24px rgba(0,0,0,.18)!important;
+  overflow-y:auto!important;padding-bottom:20px!important;
+  animation:drawerIn .25s ease!important;
+}
+@keyframes drawerIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+.sidebar.drawer-open .nav-item{
+  flex-direction:row!important;padding:12px 16px!important;
+  border-left:3px solid transparent!important;border-top:none!important;
+  font-size:13px!important;color:#64748B!important;gap:10px!important;
+}
+.sidebar.drawer-open .nav-item.active{
+  color:#1A7AC7!important;background:#EBF5FB!important;border-left-color:#1A7AC7!important;border-top:none!important;
+}
+.sidebar.drawer-open .nav-item i{font-size:17px!important}
+.sidebar.drawer-open .nav-item span{font-size:13px!important;font-weight:500!important;
+  white-space:normal!important;max-width:none!important;text-align:left!important}
+.sidebar.drawer-open .nav-sec{display:block!important}
+.drawer-header{padding:20px 16px 12px;border-bottom:1px solid var(--border);margin-bottom:6px;
+  display:flex;align-items:center;gap:10px}
+.drawer-header .t-logo-mark{width:32px;height:32px;background:#0F5A9E;border-radius:8px;
+  display:flex;align-items:center;justify-content:center}
+.drawer-header .t-logo-mark svg{width:24px;height:22px}
+.drawer-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0F5A9E}
+.drawer-sub{font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:1px}
+
+
+/* ── TECH CARDS MÓVIL ───────────────────────────────────────────── */
+.svc-card{background:#fff;border-radius:14px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);transition:box-shadow .2s}
+.svc-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.10)}
+.svc-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.svc-orden{width:28px;height:28px;border-radius:50%;background:var(--blue-lt);color:var(--blue);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.svc-cname{font-size:14px;font-weight:700;color:var(--text1);flex:1}
+.svc-body{padding:14px 16px}
+.svc-dir{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:12px}
+.svc-maps-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,#0F5A9E,#1A7AC7);color:#fff;border-radius:12px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:12px;box-shadow:0 3px 10px rgba(15,90,158,.25)}
+.svc-maps-btn i{font-size:20px;flex-shrink:0}
+.svc-maps-btn-text{flex:1}
+.svc-maps-btn-text div:first-child{font-size:13px}
+.svc-maps-btn-text div:last-child{font-size:10px;opacity:.75;font-weight:400;margin-top:1px}
+.svc-actions{display:flex;gap:8px;flex-wrap:wrap}
+.svc-actions .btn{flex:1;min-width:100px;justify-content:center}
+
+/* Tech header card */
+.tech-hd{background:linear-gradient(135deg,#0F5A9E 0%,#1A7AC7 55%,#148A6E 100%);border-radius:16px;padding:20px 18px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}
+.tech-hd::before{content:'';position:absolute;top:-40px;right:-30px;width:140px;height:140px;background:rgba(255,255,255,.06);border-radius:50%}
+.tech-hd::after{content:'';position:absolute;bottom:-30px;left:-20px;width:100px;height:100px;background:rgba(255,255,255,.04);border-radius:50%}
+.tech-hd-inner{position:relative;z-index:1}
+.tech-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.tech-pill{background:rgba(255,255,255,.12);border-radius:10px;padding:10px 8px;text-align:center;backdrop-filter:blur(4px)}
+.tech-pill-val{font-size:22px;font-weight:700;line-height:1}
+.tech-pill-lbl{font-size:9px;opacity:.75;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Estado badges en tarjetas */
+.svc-estado{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.est-pendiente{background:#FFF3CD;color:#856404}
+.est-en_proceso{background:#CCE5FF;color:#004085}
+.est-finalizado{background:#D4EDDA;color:#155724}
+
+</style>
+<script>
+// ═══ MEDIA STORE + GALERÍA — disponible desde el inicio ═══
+window._mediaStore = [];
+window._gallery = [];
+window._gIdx = 0;
+
+window._addMedia = function(items, title) {
+  var idx = window._mediaStore.length;
+  window._mediaStore.push({items: items, title: title});
+  return idx;
+};
+
+window._showGalleryItem = function() {
+  var item = window._gallery[window._gIdx];
+  var main = document.getElementById('gallery-main');
+  var counter = document.getElementById('gallery-counter');
+  var prev = document.getElementById('gallery-prev');
+  var next = document.getElementById('gallery-next');
+  if (!main) return;
+  counter.textContent = (window._gIdx+1) + ' / ' + window._gallery.length;
+  prev.disabled = window._gIdx === 0;
+  next.disabled = window._gIdx === window._gallery.length - 1;
+  if (!item) { main.innerHTML = '<div style="color:rgba(255,255,255,.4);text-align:center">Sin contenido</div>'; return; }
+  var base = window.location.origin;
+  var src = item.url.startsWith('http') ? item.url : base + item.url;
+  if (item.type === 'video') {
+    main.innerHTML = '<video src="'+src+'" controls autoplay muted style="max-width:100%;max-height:100%;border-radius:8px"></video>';
+  } else {
+    main.innerHTML = '<img src="'+src+'" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px">';
+  }
+  // thumbs activo
+  document.querySelectorAll('.gallery-thumb,.gallery-thumb-vid').forEach(function(t,i){ t.classList.toggle('active', i===window._gIdx); });
+};
+
+window._showGalleryThumbs = function() {
+  var base = window.location.origin;
+  var el = document.getElementById('gallery-thumbs');
+  if (!el) return;
+  el.innerHTML = window._gallery.map(function(item, i) {
+    var src = item.url.startsWith('http') ? item.url : base + item.url;
+    if (item.type === 'video') {
+      return '<div class="gallery-thumb-vid'+(i===window._gIdx?' active':'')+'" onclick="window.galleryGoTo('+i+')" title="Video"><i class="ti ti-player-play"></i></div>';
+    }
+    return '<img class="gallery-thumb'+(i===window._gIdx?' active':'')+'" src="'+src+'" onclick="window.galleryGoTo('+i+')">';
+  }).join('');
+};
+
+window.galleryGoTo = function(i) {
+  window._gIdx = i;
+  window._showGalleryItem();
+};
+
+window.galleryNav = function(dir) {
+  window._gIdx = Math.max(0, Math.min(window._gallery.length-1, window._gIdx+dir));
+  window._showGalleryItem();
+};
+
+window.openGallery = function(items, startIdx, title) {
+  window._gallery = (items || []).filter(Boolean);
+  if (!window._gallery.length) { alert('Sin archivos adjuntos'); return; }
+  window._gIdx = Math.min(startIdx||0, window._gallery.length-1);
+  var titleEl = document.getElementById('gallery-title');
+  if (titleEl) titleEl.textContent = title || 'Evidencia';
+  window._showGalleryItem();
+  window._showGalleryThumbs();
+  var modal = document.getElementById('foto-modal');
+  if (modal) modal.classList.add('open');
+  document.addEventListener('keydown', window._galleryKey);
+};
+
+window._galleryKey = function(e) {
+  if (e.key==='ArrowRight') window.galleryNav(1);
+  if (e.key==='ArrowLeft') window.galleryNav(-1);
+  if (e.key==='Escape') window.closeFotoModal();
+};
+
+window.closeFotoModal = function() {
+  var modal = document.getElementById('foto-modal');
+  if (modal) modal.classList.remove('open');
+  var main = document.getElementById('gallery-main');
+  if (main) main.innerHTML = '';
+  document.removeEventListener('keydown', window._galleryKey);
+};
+
+window.openMediaByIdx = function(idx) {
+  var entry = window._mediaStore[idx];
+  if (!entry || !entry.items || !entry.items.length) {
+    alert('Sin archivos en índice '+idx);
+    return;
+  }
+  window.openGallery(entry.items, 0, entry.title);
+};
+</script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen show" id="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="14" r="9" fill="#F5C842"/>
+        <line x1="30" y1="2" x2="30" y2="0" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="40" y1="5" x2="42" y2="3" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="44" y1="14" x2="47" y2="14" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="20" y1="5" x2="18" y2="3" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="16" y1="14" x2="13" y2="14" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M4 28 Q15 22 26 28 Q37 34 48 28 Q53 25 57 28" stroke="#1A7AC7" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M6 38 Q18 31 30 37 Q42 43 54 37" stroke="#1DAA8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M4 33 L11 28 L4 43 Z" fill="#1DAA8A" opacity=".8"/>
+        <circle cx="46" cy="36" r="2" fill="#1A7AC7"/>
+      </svg>
+      <div class="brand">AQUAZUL</div>
+      <div class="sub">Piscinas Sanas</div>
+    </div>
+    <div id="login-error" style="display:none;background:#FDEDEC;color:#C0392B;border:1px solid #C0392B;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;font-weight:500"></div>
+    <div class="frow">
+      <label class="flbl">Correo electronico</label>
+      <input class="finput" type="email" id="l-email" placeholder="Correo electrónico" autocomplete="username"/>
+    </div>
+    <div class="frow">
+      <label class="flbl">Contrasena</label>
+      <input class="finput" type="password" id="l-pass" placeholder="Contraseña" autocomplete="current-password"/>
+    </div>
+    <button class="btn primary full lg" id="l-btn" type="button" onclick="doLogin()">
+      <i class="ti ti-login"></i> Ingresar
+    </button>
+
+  </div>
+</div>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- APP -->
+<div class="app" id="main-app">
+  <div class="topbar">
+    <div class="t-logo" style="gap:8px">
+      <button class="ham-btn" id="ham-btn" onclick="toggleDrawer()" aria-label="Menú"><i class="ti ti-menu-2"></i></button>
+      <div class="t-logo-mark">
+        <svg viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="14" r="8" fill="#F5C842"/>
+          <path d="M4 28 Q15 22 26 28 Q37 34 48 28" stroke="#1A7AC7" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <path d="M6 38 Q18 31 30 37 Q42 43 54 37" stroke="#1DAA8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M4 33 L11 28 L4 43 Z" fill="#1DAA8A" opacity=".8"/>
+        </svg>
+      </div>
+      <div><div class="t-brand">AQUAZUL</div><div class="t-sub">Piscinas Sanas</div></div>
+    </div>
+    <div class="t-right">
+
+      <button class="t-bell" onclick="openModal('modal-notifs')"><i class="ti ti-bell"></i><div class="t-bell-dot" id="bell-dot"></div></button>
+      <div class="t-user"><div class="t-av" id="t-av">?</div><span class="t-name" id="t-name">—</span></div>
+      <button class="t-logout" onclick="doLogout()"><i class="ti ti-logout"></i></button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <!-- ADMIN SIDEBAR -->
+    <nav class="sidebar" id="sb-admin" style="display:none">
+      <div class="drawer-header">
+        <div class="t-logo-mark" style="background:#0F5A9E;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" width="24"><circle cx="30" cy="14" r="8" fill="#F5C842"/><path d="M4 28 Q15 22 26 28 Q37 34 48 28" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 38 Q18 31 30 37 Q42 43 54 37" stroke="#1DAA8A" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div><div class="drawer-title">AQUAZUL</div><div class="drawer-sub">Administrador</div></div>
+        <button onclick="closeDrawer()" style="margin-left:auto;background:#F7FAFC;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:#64748B;font-size:14px;display:flex;align-items:center;justify-content:center"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="nav-sec">Principal</div>
+      <div class="nav-item active" onclick="adminNav('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
+      <div class="nav-sec">Operaciones</div>
+      <div class="nav-item" onclick="adminNav('clientes',this)"><i class="ti ti-building"></i><span>Clientes</span></div>
+      <div class="nav-item" onclick="adminNav('rutas',this)"><i class="ti ti-route"></i><span>Rutas</span></div>
+      <div class="nav-item" onclick="adminNav('mapa',this)"><i class="ti ti-map"></i><span>Mapa</span></div>
+      <div class="nav-item" onclick="adminNav('tecnicos',this)"><i class="ti ti-users"></i><span>Usuarios</span></div>
+      <div class="nav-sec">Control</div>
+      <div class="nav-item" onclick="adminNav('novedades',this)"><i class="ti ti-alert-triangle"></i><span>Novedades</span><span class="nav-badge" id="nov-badge">0</span></div>
+      <div class="nav-item" onclick="adminNav('reportes',this)"><i class="ti ti-file-analytics"></i><span>Reportes</span></div>
+    </nav>
+
+    <!-- TECH SIDEBAR -->
+    <nav class="sidebar" id="sb-tech" style="display:none">
+      <div class="drawer-header">
+        <div style="background:#0F5A9E;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center">
+          <svg viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg" width="24"><circle cx="30" cy="14" r="8" fill="#F5C842"/><path d="M4 28 Q15 22 26 28 Q37 34 48 28" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 38 Q18 31 30 37 Q42 43 54 37" stroke="#1DAA8A" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <div><div class="drawer-title">AQUAZUL</div><div class="drawer-sub">Técnico</div></div>
+        <button onclick="closeDrawer()" style="margin-left:auto;background:#F7FAFC;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:#64748B;font-size:14px;display:flex;align-items:center;justify-content:center"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="nav-sec">Mi dia</div>
+      <div class="nav-item active" onclick="techNav('t-ruta',this)"><i class="ti ti-map-pin"></i><span>Mi ruta</span></div>
+      <div class="nav-item" onclick="techNav('t-registrar',this)"><i class="ti ti-clipboard-list"></i><span>Visita</span></div>
+      <div class="nav-item" onclick="techNav('t-novedad',this)"><i class="ti ti-alert-circle"></i><span>Novedad</span></div>
+      <div class="nav-sec">Historial</div>
+      <div class="nav-item" onclick="techNav('t-historial',this)"><i class="ti ti-history"></i><span>Historial</span></div>
+    </nav>
+
+    <div class="main-content">
+
+      <!-- ══ ADMIN PAGES ══ -->
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="p-dashboard">
+        <!-- Header dashboard -->
+        <div class="ph">
+          <div><h1>Dashboard</h1><p id="dash-fecha">—</p></div>
+          <button class="btn primary sm" onclick="adminNav('mapa',null)"><i class="ti ti-map"></i> <span class="hide-xs">Mapa en vivo</span></button>
+        </div>
+
+        <!-- Banner estado -->
+        <div class="info-banner teal" style="margin-bottom:14px"><i class="ti ti-droplet"></i><span id="dash-banner">Cargando...</span></div>
+
+        <!-- Métricas -->
+        <div class="metrics">
+          <div class="metric m-blue" onclick="adminNav('reportes',null)" style="cursor:pointer">
+            <div class="metric-lbl">Servicios hoy</div>
+            <div class="metric-val" id="d-svc">—</div>
+            <div class="metric-note" id="d-svc-n">—</div>
+            <div class="prog-bar" style="margin-top:10px"><div class="prog-fill" id="d-prog" style="width:0%;background:var(--blue)"></div></div>
+          </div>
+          <div class="metric m-teal" onclick="adminNav('mapa',null)" style="cursor:pointer">
+            <div class="metric-lbl">Técnicos activos</div>
+            <div class="metric-val" id="d-tec">—</div>
+            <div class="metric-note">en ruta hoy</div>
+          </div>
+          <div class="metric m-sun" onclick="adminNav('novedades',null)" style="cursor:pointer">
+            <div class="metric-lbl">Novedades</div>
+            <div class="metric-val" id="d-nov">—</div>
+            <div class="metric-note">sin atender</div>
+          </div>
+          <div class="metric m-red" onclick="adminNav('reportes',null)" style="cursor:pointer">
+            <div class="metric-lbl">Este mes</div>
+            <div class="metric-val" id="d-mes">—</div>
+            <div class="metric-note">servicios total</div>
+          </div>
+        </div>
+
+        <!-- Accesos rápidos solo móvil -->
+        <div class="quick-actions">
+          <button class="qa-btn" onclick="adminNav('rutas',null)"><i class="ti ti-route"></i><span>Nueva ruta</span></button>
+          <button class="qa-btn" onclick="openModal('modal-new-client')"><i class="ti ti-building-plus"></i><span>Nuevo cliente</span></button>
+          <button class="qa-btn" onclick="adminNav('novedades',null)"><i class="ti ti-alert-triangle"></i><span>Novedades</span></button>
+          <button class="qa-btn" onclick="adminNav('tecnicos',null)"><i class="ti ti-users"></i><span>Usuarios</span></button>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-hd"><i class="ti ti-chart-bar"></i>Servicios — últimos 7 días</div>
+            <div class="bar-chart-scroll"><div class="bar-chart" id="bar-chart">
+              <div style="color:var(--text2);font-size:12px;text-align:center;width:100%">Cargando...</div>
+            </div></div>
+          </div>
+          <div class="card"><div class="card-hd"><i class="ti ti-users"></i>Técnicos en campo</div><div id="d-tec-list">Cargando...</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><i class="ti ti-bell"></i>Novedades recientes
+            <div class="card-actions"><button class="btn sm ghost" onclick="adminNav('novedades',null)">Ver todas <i class="ti ti-arrow-right"></i></button></div>
+          </div>
+          <div id="d-nov-list">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div class="page" id="p-clientes">
+        <div class="ph"><div><h1>Clientes</h1><p id="cli-count">—</p></div>
+          <button class="btn primary sm" onclick="openModal('modal-new-client')"><i class="ti ti-plus"></i> Nuevo cliente</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:14px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+            <input class="finput" placeholder="Buscar..." style="flex:1;min-width:160px;padding:8px 12px" oninput="filterCli(this.value)">
+            <select class="finput" style="width:160px;padding:8px 12px" onchange="filterCliTipo(this.value)">
+              <option value="">Todos los tipos</option>
+              <option>Residencial</option><option>Comercial</option><option>Olímpica</option>
+            </select>
+          </div>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Cliente</th><th>Tipo</th><th>Servicio</th><th>Frecuencia</th><th>Teléfono</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-cli"><tr><td colspan="6" style="text-align:center;color:var(--text2);padding:32px">Cargando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- RUTAS -->
+      <div class="page" id="p-rutas">
+        <div class="ph"><div><h1>Rutas del día</h1><p>Asignar y ordenar visitas</p></div></div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hd"><i class="ti ti-settings"></i>Configurar ruta</div>
+          <div class="two-col">
+            <div class="frow"><label class="flbl">Técnico</label><select class="finput" id="r-tec"><option value="">Seleccionar técnico...</option></select></div>
+            <div class="frow"><label class="flbl">Fecha</label><input type="date" class="finput" id="r-fecha"></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div>
+            <p style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Clientes disponibles — click para agregar</p>
+            <div id="chips-cli">Cargando...</div>
+          </div>
+          <div>
+            <p style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Orden de visitas</p>
+            <div id="route-order"><div style="text-align:center;padding:28px;border:2px dashed var(--border);border-radius:var(--rl);font-size:13px;color:var(--text3)"><i class="ti ti-arrow-left" style="font-size:22px;display:block;margin-bottom:6px"></i>Selecciona clientes</div></div>
+            <div id="ruta-confirmacion" style="display:none;margin-top:8px"></div>
+            <button class="btn teal full" style="margin-top:12px" onclick="saveRuta()"><i class="ti ti-device-floppy"></i> Guardar y notificar por WhatsApp</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAPA -->
+      <div class="page" id="p-mapa">
+        <div class="ph"><div><h1>Mapa en vivo</h1><p>Actualización automática cada 15s</p></div>
+          <button class="btn sm" onclick="refreshAdminMap()"><i class="ti ti-refresh"></i> Actualizar</button>
+        </div>
+        <div class="card" style="padding:16px;margin-bottom:16px"><div id="map-admin"></div>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#1A7AC7"></div>Técnico activo</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#1DAA8A"></div>Completado</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#F5C842;border:1px solid #D4A017"></div>Pendiente</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#C0392B"></div>Novedad</div>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Técnico</th><th>Progreso</th><th>Última ubicación</th><th>Estado</th></tr></thead>
+            <tbody id="mapa-tec-tbody"><tr><td colspan="4" style="color:var(--text2);padding:20px">Cargando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- TÉCNICOS -->
+      <div class="page" id="p-tecnicos">
+        <div class="ph">
+  <div><h1>Usuarios</h1><p style="font-size:12px;color:var(--text2)">Administra técnicos y administradores del sistema</p></div>
+  <button class="btn primary sm" onclick="openModal('modal-new-tech')"><i class="ti ti-user-plus"></i> Agregar usuario</button>
+</div>
+<!-- Filtro de rol -->
+<div style="display:flex;gap:8px;margin-bottom:16px">
+  <button class="btn sm active" id="filter-todos" onclick="filtrarUsuarios('todos',this)"><i class="ti ti-users"></i> Todos</button>
+  <button class="btn sm ghost" id="filter-tecnicos" onclick="filtrarUsuarios('tecnico',this)"><i class="ti ti-tool"></i> Técnicos</button>
+  <button class="btn sm ghost" id="filter-admins" onclick="filtrarUsuarios('admin',this)"><i class="ti ti-shield-check"></i> Admins</button>
+</div>
+        <div class="tech-grid" id="tech-grid"><div style="color:var(--text2)">Cargando...</div></div>
+      </div>
+
+      <!-- NOVEDADES -->
+      <div class="page" id="p-novedades">
+        <div class="ph"><div><h1>Novedades</h1><p id="nov-count">—</p></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn sm" onclick="loadNovedades()">Todas</button>
+            <button class="btn sm danger" onclick="loadNovedades('alta')"><i class="ti ti-alert-triangle"></i> Alta prioridad</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Tipo</th><th>Cliente</th><th>Técnico</th><th>Descripción</th><th>Evidencia</th><th>Prioridad</th><th>Estado</th><th></th></tr></thead>
+            <tbody id="tbody-nov"><tr><td colspan="8" style="text-align:center;color:var(--text2);padding:32px">Cargando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- REPORTES -->
+      <div class="page" id="p-reportes">
+        <div class="ph"><div><h1>Reportes</h1><p>Visitas registradas con evidencia fotográfica</p></div></div>
+        <div class="metrics">
+          <div class="metric m-blue"><div class="metric-lbl">Servicios mes</div><div class="metric-val" id="r-mes">—</div></div>
+          <div class="metric m-teal"><div class="metric-lbl">Finalizados hoy</div><div class="metric-val" id="r-hoy">—</div></div>
+          <div class="metric m-sun"><div class="metric-lbl">Novedades</div><div class="metric-val" id="r-nov">—</div></div>
+          <div class="metric m-red"><div class="metric-lbl">Técnicos activos</div><div class="metric-val" id="r-tec-val">—</div></div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Cliente</th><th>Técnico</th><th>Fecha</th><th>Actividades</th><th>Fotos</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-rep"><tr><td colspan="6" style="text-align:center;color:var(--text2);padding:32px">Cargando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ══ TECH PAGES ══ -->
+
+      <!-- MI RUTA -->
+      <div class="page" id="p-t-ruta">
+        <div class="tech-view-header">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <div style="font-size:12px;opacity:.8">Buenos días,</div>
+              <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700" id="tech-name-hd">—</div>
+            </div>
+            <div id="loc-indicator" style="font-size:11px;opacity:.8;text-align:right">
+              <i class="ti ti-map-pin"></i> Ubicación<br><span id="loc-status-txt">Activando...</span>
+            </div>
+          </div>
+          <div class="tech-pills">
+            <div class="tech-pill"><div class="tech-pill-val" id="pill-done">0</div><div class="tech-pill-lbl">Listos</div></div>
+            <div class="tech-pill"><div class="tech-pill-val" id="pill-pend">0</div><div class="tech-pill-lbl">Pendientes</div></div>
+            <div class="tech-pill"><div class="tech-pill-val" id="pill-total">0</div><div class="tech-pill-lbl">Total</div></div>
+          </div>
+        </div>
+
+        <!-- Permisos banner (se muestra si no tiene permisos) -->
+        <div class="perm-banner" id="perm-banner" style="display:none">
+          <h3>🔒 Permisos requeridos</h3>
+          <p>Para usar el sistema necesitamos acceso a tu cámara y ubicación GPS. Estos datos son necesarios para registrar evidencia y confirmar presencia en el sitio.</p>
+          <div class="perm-btns">
+            <button class="perm-btn" id="btn-perm-loc" onclick="pedirUbicacion()"><i class="ti ti-map-pin"></i> Activar GPS</button>
+            <button class="perm-btn" id="btn-perm-cam" onclick="pedirCamara()"><i class="ti ti-camera"></i> Activar cámara</button>
+          </div>
+        </div>
+
+        <div id="map-tech"></div>
+        <div class="sec-hd" style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px">Visitas de hoy</div>
+        <div id="ruta-cards"><div style="text-align:center;padding:40px;color:var(--text2)"><i class="ti ti-loader" style="font-size:32px;display:block;margin-bottom:8px"></i>Cargando ruta...</div></div>
+      </div>
+
+      <!-- REGISTRAR VISITA -->
+      <div class="page" id="p-t-registrar">
+        <div class="ph">
+          <div><h1>Registrar visita</h1><p id="reg-cli-name" style="color:var(--blue);font-weight:500">—</p></div>
+          <button class="btn ghost" onclick="techNav('t-ruta',null)"><i class="ti ti-arrow-left"></i> Volver</button>
+        </div>
+        <div class="loc-status-bar ok" id="reg-loc-status" style="display:flex">
+          <span class="loc-dot ok"></span>
+          <span id="reg-loc-txt">GPS activo</span>
+          <span id="reg-info" style="margin-left:auto;font-size:11px;opacity:.8"></span>
+        </div>
+        <div class="card">
+          <div class="card-hd"><i class="ti ti-clipboard-list"></i>Detalles del servicio</div>
+          <div class="frow"><label class="flbl">Estado del servicio</label>
+            <select class="finput" id="reg-estado">
+              <option value="finalizado">✅ Finalizado correctamente</option>
+              <option value="en_proceso">🔄 En proceso</option>
+              <option value="no_ejecutado">❌ No ejecutado — cliente ausente</option>
+            </select>
+          </div>
+          <div class="frow">
+            <label class="flbl" style="margin-bottom:10px">Actividades realizadas</label>
+            <ul class="cklist">
+              <li><input type="checkbox" id="a1"><label for="a1">Limpieza de filtros y skimmer</label></li>
+              <li><input type="checkbox" id="a2"><label for="a2">Ajuste de pH y niveles de cloro</label></li>
+              <li><input type="checkbox" id="a3"><label for="a3">Revisión de bomba y sistema de filtrado</label></li>
+              <li><input type="checkbox" id="a4"><label for="a4">Aspirado de fondo y paredes</label></li>
+              <li><input type="checkbox" id="a5"><label for="a5">Emboquillado y juntas</label></li>
+              <li><input type="checkbox" id="a6"><label for="a6">Tratamiento de recuperación</label></li>
+              <li><input type="checkbox" id="a7"><label for="a7">Detección de fugas</label></li>
+              <li><input type="checkbox" id="a8"><label for="a8">Otros</label></li>
+            </ul>
+          </div>
+          <div class="frow"><label class="flbl">Observaciones</label><textarea class="finput" id="reg-obs" placeholder="Detalles del servicio, estado del agua, recomendaciones..."></textarea></div>
+
+          <!-- FOTOS -->
+          <div class="foto-section">
+            <label class="flbl">Evidencia fotográfica (hasta 3 fotos)</label>
+            <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Haz click en cada casilla para tomar una foto o seleccionar una imagen</p>
+            <div class="foto-grid">
+              <div class="foto-slot" id="slot-1" onclick="triggerFoto(1)" title="Foto 1">
+                <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+                <span class="foto-label">Antes</span>
+                <button class="foto-remove" onclick="removeFoto(event,1)"><i class="ti ti-x"></i></button>
+              </div>
+              <div class="foto-slot" id="slot-2" onclick="triggerFoto(2)" title="Foto 2">
+                <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+                <span class="foto-label">Durante</span>
+                <button class="foto-remove" onclick="removeFoto(event,2)"><i class="ti ti-x"></i></button>
+              </div>
+              <div class="foto-slot" id="slot-3" onclick="triggerFoto(3)" title="Foto 3">
+                <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+                <span class="foto-label">Después</span>
+                <button class="foto-remove" onclick="removeFoto(event,3)"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slot de video reporte -->
+          <div class="foto-slot" id="slot-video-rep" onclick="triggerVideoRep()" style="aspect-ratio:16/6;margin-top:10px;background:rgba(15,90,158,.06);border-color:var(--blue);border-style:dashed">
+            <span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:28px"></i></span>
+            <span class="foto-label" style="color:var(--blue);font-weight:500">Video del servicio (opcional)</span>
+            <button class="foto-remove" onclick="removeVideoRep(event)"><i class="ti ti-x"></i></button>
+          </div>
+          <input type="file" id="file-video-rep" class="hidden-file" accept="video/*" onchange="handleVideoRep(event)">
+
+          <!-- Inputs file ocultos -->
+          <input type="file" id="file-1" class="hidden-file" accept="image/*" onchange="handleFoto(event,1)">
+          <input type="file" id="file-2" class="hidden-file" accept="image/*" onchange="handleFoto(event,2)">
+          <input type="file" id="file-3" class="hidden-file" accept="image/*" onchange="handleFoto(event,3)">
+
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="btn teal full lg" onclick="submitReporte()"><i class="ti ti-check"></i> Cerrar servicio</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOVEDAD -->
+      <div class="page" id="p-t-novedad">
+        <div class="ph">
+          <div><h1>Reportar novedad</h1><p style="color:var(--red)">Se notifica al admin inmediatamente</p></div>
+          <button class="btn ghost" onclick="techNav('t-ruta',null)"><i class="ti ti-arrow-left"></i> Volver</button>
+        </div>
+        <div class="card">
+          <div class="frow"><label class="flbl">Tipo de novedad</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px" id="nov-tipos">
+              <button class="prio-btn sel-high" onclick="setNovTipo(this,'Daño en equipos')" data-val="Daño en equipos" style="border-radius:var(--r)"><i class="ti ti-tool" style="font-size:22px"></i>Daño equipos</button>
+              <button class="prio-btn" onclick="setNovTipo(this,'Falta de insumos')" data-val="Falta de insumos" style="border-radius:var(--r)"><i class="ti ti-package" style="font-size:22px"></i>Falta insumos</button>
+              <button class="prio-btn" onclick="setNovTipo(this,'Cliente ausente')" data-val="Cliente ausente" style="border-radius:var(--r)"><i class="ti ti-user-off" style="font-size:22px"></i>Cliente ausente</button>
+              <button class="prio-btn" onclick="setNovTipo(this,'Fuga de agua')" data-val="Fuga de agua" style="border-radius:var(--r)"><i class="ti ti-droplet-off" style="font-size:22px"></i>Fuga de agua</button>
+            </div>
+          </div>
+          <div class="frow"><label class="flbl">Descripción detallada</label><textarea class="finput" id="nov-desc" placeholder="Describe el problema con el mayor detalle posible..."></textarea></div>
+          <div class="frow"><label class="flbl">Prioridad</label>
+            <div class="prio-btns">
+              <div class="prio-btn sel-low" onclick="setPrio(this,'low')" data-val="baja"><i class="ti ti-circle-check"></i>Baja<span style="font-size:10px;font-weight:400">No urgente</span></div>
+              <div class="prio-btn" onclick="setPrio(this,'med')" data-val="media"><i class="ti ti-alert-circle"></i>Media<span style="font-size:10px;font-weight:400">Esta semana</span></div>
+              <div class="prio-btn" onclick="setPrio(this,'high')" data-val="alta"><i class="ti ti-alert-triangle"></i>Alta<span style="font-size:10px;font-weight:400">Urgente</span></div>
+            </div>
+          </div>
+          <!-- Evidencia novedad: foto + video -->
+          <div class="foto-section">
+            <label class="flbl">Evidencia <span style="font-size:11px;color:var(--text2);font-weight:400">(fotos o video, máx 50MB)</span></label>
+            <div class="foto-grid" style="grid-template-columns:1fr 1fr">
+              <div class="foto-slot" id="slot-n1" onclick="triggerFotaNov(1)" style="aspect-ratio:16/9">
+                <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+                <span class="foto-label">Foto 1</span>
+                <button class="foto-remove" onclick="removeFotoNov(event,1)"><i class="ti ti-x"></i></button>
+              </div>
+              <div class="foto-slot" id="slot-n2" onclick="triggerFotaNov(2)" style="aspect-ratio:16/9">
+                <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+                <span class="foto-label">Foto 2</span>
+                <button class="foto-remove" onclick="removeFotoNov(event,2)"><i class="ti ti-x"></i></button>
+              </div>
+            </div>
+            <!-- Slot de video -->
+            <div class="foto-slot" id="slot-video-nov" onclick="triggerVideoNov()" style="aspect-ratio:16/6;margin-top:8px;background:rgba(15,90,158,.06);border-color:var(--blue)">
+              <span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span>
+              <span class="foto-label" style="color:var(--blue)">Grabar o subir video del problema</span>
+              <button class="foto-remove" id="btn-rm-vid-nov" onclick="removeVideoNov(event)"><i class="ti ti-x"></i></button>
+            </div>
+            <input type="file" id="file-n1" class="hidden-file" accept="image/*" onchange="handleFotaNov(event,1)">
+            <input type="file" id="file-n2" class="hidden-file" accept="image/*" onchange="handleFotaNov(event,2)">
+            <input type="file" id="file-video-nov" class="hidden-file" accept="video/*" onchange="handleVideoNov(event)">
+          </div>
+          <button class="btn danger full lg" onclick="submitNovedad()"><i class="ti ti-send"></i> Enviar al administrador</button>
+        </div>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="page" id="p-t-historial">
+        <div class="ph"><div><h1>Mis servicios</h1></div></div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>Cliente</th><th>Fecha</th><th>Actividades</th><th>Fotos</th><th>Estado</th></tr></thead>
+            <tbody id="tbody-hist"><tr><td colspan="5" style="text-align:center;color:var(--text2);padding:32px">Cargando...</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<!-- FOTO MODAL (ver foto grande) -->
+<!-- GALERÍA MODAL (fotos + video) -->
+<div class="foto-modal-overlay" id="foto-modal">
+  <div class="gallery-box" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div class="gallery-hd">
+      <span class="gallery-title" id="gallery-title">Evidencia</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="gallery-counter" id="gallery-counter">1 / 1</span>
+        <button class="gallery-close" onclick="window.closeFotoModal()"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+    <!-- Visor principal -->
+    <div class="gallery-main" id="gallery-main"></div>
+    <!-- Navegación -->
+    <button class="gallery-nav prev" id="gallery-prev" onclick="window.galleryNav(-1)"><i class="ti ti-chevron-left"></i></button>
+    <button class="gallery-nav next" id="gallery-next" onclick="window.galleryNav(1)"><i class="ti ti-chevron-right"></i></button>
+    <!-- Thumbnails -->
+    <div class="gallery-thumbs" id="gallery-thumbs"></div>
+  </div>
+  <div class="gallery-backdrop" onclick="window.closeFotoModal()"></div>
+</div>
+
+<!-- MODAL NOTIFICACIONES -->
+<div class="modal-overlay" id="modal-notifs" onclick="if(event.target===this)closeModal('modal-notifs')">
+  <div class="modal">
+    <div class="modal-hd"><h2>Notificaciones</h2><button class="modal-close" onclick="closeModal('modal-notifs')"><i class="ti ti-x"></i></button></div>
+    <div id="modal-notifs-body"><div style="color:var(--text2);text-align:center;padding:20px">Cargando...</div></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO CLIENTE -->
+<div class="modal-overlay" id="modal-new-client" onclick="if(event.target===this)closeModal('modal-new-client')">
+  <div class="modal">
+    <div class="modal-hd"><h2>Nuevo cliente</h2><button class="modal-close" onclick="closeModal('modal-new-client')"><i class="ti ti-x"></i></button></div>
+    <div class="two-col">
+      <div class="frow"><label class="flbl">Nombre</label><input class="finput" id="nc-nom" placeholder="Nombre del cliente"></div>
+      <div class="frow"><label class="flbl">Teléfono WhatsApp</label><input class="finput" id="nc-tel" placeholder="310 000 0000" type="tel"></div>
+    </div>
+    <div class="frow"><label class="flbl">Dirección</label><input class="finput" id="nc-dir" placeholder="Calle / Carrera, ciudad"></div>
+    <div class="two-col">
+      <div class="frow"><label class="flbl">Tipo de piscina</label><select class="finput" id="nc-tipo"><option>Residencial</option><option>Comercial</option><option>Olímpica</option><option>Club / Hotel</option></select></div>
+      <div class="frow"><label class="flbl">Frecuencia</label><select class="finput" id="nc-freq"><option>Semanal</option><option>Diaria</option><option>Quincenal</option><option>Mensual</option></select></div>
+    </div>
+    <div class="frow"><label class="flbl">Servicio principal</label><select class="finput" id="nc-svc"><option>Mantenimiento general</option><option>Ajuste químico</option><option>Revisión de equipos</option><option>Detección de fugas</option><option>Recuperación piscina</option></select></div>
+    <div class="frow"><label class="flbl">Notas internas</label><textarea class="finput" id="nc-notas" placeholder="Acceso, horarios, observaciones..." style="min-height:60px"></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn teal full" onclick="saveCliente()"><i class="ti ti-check"></i> Guardar cliente</button>
+      <button class="btn" onclick="closeModal('modal-new-client')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO TÉCNICO -->
+<div class="modal-overlay" id="modal-new-tech" onclick="if(event.target===this)closeModal('modal-new-tech')">
+  <div class="modal">
+    <div class="modal-hd"><h2>Agregar técnico</h2><button class="modal-close" onclick="closeModal('modal-new-tech')"><i class="ti ti-x"></i></button></div>
+    <div class="two-col">
+      <div class="frow"><label class="flbl">Nombre completo</label><input class="finput" id="nt-nom" placeholder="Nombre Apellido"></div>
+      <div class="frow"><label class="flbl">Teléfono</label><input class="finput" id="nt-tel" placeholder="310 000 0000" type="tel"></div>
+    </div>
+    <div class="frow"><label class="flbl">Email (para login)</label><input class="finput" id="nt-email" placeholder="tecnico@aquazul.co" type="email"></div>
+    <div class="frow"><label class="flbl">Contraseña inicial</label><input class="finput" id="nt-pass" type="password" placeholder="Mínimo 8 caracteres"></div>
+    <div class="frow"><label class="flbl">Rol del usuario</label>
+      <select class="finput" id="nt-rol">
+        <option value="tecnico">🔧 Técnico de campo</option>
+        <option value="admin">🛡️ Administrador</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn teal full" onclick="saveTecnico()"><i class="ti ti-check"></i> Registrar usuario</button>
+      <button class="btn" onclick="closeModal('modal-new-tech')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check" id="toast-icon"></i><span id="toast-msg">—</span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<script>
+
+/* ═════════
+// ── GALERÍA: store global (definido también en <head> para garantizar disponibilidad) ──
+window._mediaStore = window._mediaStore || [];
+function _addMedia(items, title) {
+  const idx = window._mediaStore.length;
+  window._mediaStore.push({items, title});
+  return idx;
+}
+function openMediaByIdx(idx) {
+  const entry = window._mediaStore[idx];
+  if (!entry || !entry.items.length) { toast('Sin archivos adjuntos','warning'); return; }
+  openGallery(entry.items, 0, entry.title);
+}
+
+// ── DRAWER ──────────────────────────────────────────────────────────────────
+function toggleDrawer() {
+  const id = curRole==='admin' ? 'sb-admin' : 'sb-tech';
+  const sb = document.getElementById(id);
+  const ov = document.getElementById('drawer-overlay');
+  if (!sb) return;
+  if (sb.classList.contains('drawer-open')) { closeDrawer(); return; }
+  sb.style.display = 'block';
+  sb.classList.add('drawer-open');
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  ['sb-admin','sb-tech'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('drawer-open');
+    if(window.innerWidth<=600) el.style.display='none';
+  });
+  const ov=document.getElementById('drawer-overlay');
+  if(ov) ov.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// ── GALERÍA ─────────────────────────────────────────────────────────────────
+let _gallery=[], _gIdx=0;
+
+function openGalleryRaw(jsonEnc, titleEnc) {
+  try {
+    const items = JSON.parse(decodeURIComponent(jsonEnc))
+      .map(x => ({type: x.t, url: x.u}));
+    const title = decodeURIComponent(titleEnc);
+    openGallery(items, 0, title);
+  } catch(e) { toast('Error abriendo galería: '+e.message,'error'); }
+}
+
+function openGallery(items, startIdx=0, title='Evidencia') {
+  _gallery = items.filter(Boolean);
+  if(!_gallery.length) return;
+  _gIdx = Math.min(startIdx, _gallery.length-1);
+  document.getElementById('gallery-title').textContent = title;
+  _renderGalleryItem();
+  _renderGalleryThumbs();
+  document.getElementById('foto-modal').classList.add('open');
+  document.addEventListener('keydown', _galleryKey);
+}
+function _renderGalleryItem() {
+  const main=document.getElementById('gallery-main');
+  const counter=document.getElementById('gallery-counter');
+  const item=_gallery[_gIdx];
+  counter.textContent=`${_gIdx+1} / ${_gallery.length}`;
+  document.getElementById('gallery-prev').disabled=(_gIdx===0);
+  document.getElementById('gallery-next').disabled=(_gIdx===_gallery.length-1);
+  if(!item){main.innerHTML='<div class="no-media">Sin contenido</div>';return;}
+  const base=window.location.origin;
+  const src=item.url.startsWith('http')?item.url:base+item.url;
+  if(item.type==='video'){
+    main.innerHTML=`<video src="${src}" controls autoplay muted style="max-width:100%;max-height:100%;border-radius:8px"></video>`;
+  } else {
+    main.innerHTML=`<img src="${src}" alt="Evidencia" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px" onclick="event.stopPropagation()">`;
+  }
+  document.querySelectorAll('.gallery-thumb,.gallery-thumb-vid').forEach((t,i)=>t.classList.toggle('active',i===_gIdx));
+}
+function _renderGalleryThumbs() {
+  const base=window.location.origin;
+  document.getElementById('gallery-thumbs').innerHTML=_gallery.map((item,i)=>{
+    const src=item.url.startsWith('http')?item.url:base+item.url;
+    if(item.type==='video') return `<div class="gallery-thumb-vid ${i===_gIdx?'active':''}" onclick="galleryGoTo(${i})" title="Video"><i class="ti ti-player-play"></i></div>`;
+    return `<img class="gallery-thumb ${i===_gIdx?'active':''}" src="${src}" onclick="galleryGoTo(${i})">`;
+  }).join('');
+}
+function galleryNav(dir){ _gIdx=Math.max(0,Math.min(_gallery.length-1,_gIdx+dir)); _renderGalleryItem(); }
+function galleryGoTo(i){ _gIdx=i; _renderGalleryItem(); }
+function _galleryKey(e){if(e.key==='ArrowRight')galleryNav(1);if(e.key==='ArrowLeft')galleryNav(-1);if(e.key==='Escape')closeFotoModal();}
+function closeFotoModal(){
+  document.getElementById('foto-modal').classList.remove('open');
+  const m=document.getElementById('gallery-main'); if(m) m.innerHTML='';
+  document.removeEventListener('keydown',_galleryKey);
+}
+function verFoto(url){if(url)openGallery([{type:'image',url}]);}
+function verNovedad(id){
+  const nov=(window._novedadesCache||[]).find(n=>n.id===id); if(!nov) return;
+  const items=[];
+  [nov.evidencia_url,nov.evidencia_url2].forEach(u=>{if(u)items.push({type:'image',url:u});});
+  if(nov.video_url) items.push({type:'video',url:nov.video_url});
+  if(!items.length){toast('Sin evidencia adjunta','warning');return;}
+  openGallery(items,0,`${nov.tipo} — ${nov.cliente_nombre||''}`);
+}
+function verReporte(id){
+  const rep=(window._reportesCache||[]).find(r=>r.id===id); if(!rep) return;
+  const items=[];
+  [rep.evidencia_url,rep.evidencia_url2,rep.evidencia_url3].forEach(u=>{if(u)items.push({type:'image',url:u});});
+  if(rep.video_url) items.push({type:'video',url:rep.video_url});
+  if(!items.length){toast('Sin evidencia adjunta','warning');return;}
+  openGallery(items,0,`Reporte: ${rep.cliente_nombre||''}`);
+}
+
+// ── VALIDACIÓN SESIÓN ───────────────────────────────────────────────────────
+function checkSession(){
+  const t=localStorage.getItem('az_token');
+  if(!t) return false;
+  try{
+    const p=JSON.parse(atob(t.split('.')[1]));
+    if(p.exp && Date.now()/1000>p.exp){forceLogout('Sesión expirada. Inicia sesión de nuevo.');return false;}
+  }catch(e){}
+  return true;
+}
+function forceLogout(msg){
+  localStorage.removeItem('az_token');localStorage.removeItem('az_user');
+  token=null;user=null;closeDrawer();
+  document.getElementById('main-app').classList.remove('show');
+  document.getElementById('login-screen').classList.add('show');
+  if(msg){
+    let el=document.getElementById('login-err');
+    if(!el){el=document.createElement('div');el.id='login-err';el.style.cssText='margin-top:12px;padding:10px 14px;background:#FDEDEC;color:#C0392B;border-radius:8px;font-size:13px;text-align:center';document.querySelector('.login-box').appendChild(el);}
+    el.textContent=msg;
+  }
+}
+setInterval(()=>{if(token)checkSession();},5*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&token)checkSession();});
+
+═════════════════════════════════
+   VARIABLES GLOBALES
+══════════════════════════════════════════ */
+var API = '';
+var token = localStorage.getItem('az_token');
+var user  = null;
+try { user = JSON.parse(localStorage.getItem('az_user') || 'null'); } catch(e) { user = null; }
+var curRole = 'admin';
+var cliData = [], routeCli = [];
+var mapAdmin = null, mapTech = null, techMarker = null;
+var geoWatcher = null, lastPos = null;
+var detalleId = null, clienteId = null, clienteNombre = '';
+var novTipo = 'Daño en equipos';
+var fotoUrls = {1:null,2:null,3:null};
+var fotoNovUrls = {1:null,2:null};
+// Map intervals — declarados global para acceso desde cualquier función
+var adminMapInterval = null;
+var adminMapMarkers = {};
+var techMapInterval = null;
+var techRouteDets = [];
+var techRouteLayer = null;
+
+/* ══════════════════════════════════════════
+   API
+══════════════════════════════════════════ */
+async function apiCall(path, opts={}) {
+  const hdrs = {'Content-Type':'application/json'};
+  if (token) hdrs['Authorization'] = `Bearer ${token}`;
+  try {
+    const res = await fetch(API + path, {headers:hdrs, ...opts});
+    if (res.status === 401) {
+      console.warn('401 en', path);
+      doLogout();
+      return null;
+    }
+    if (!res.ok) {
+      const e = await res.json().catch(()=>({detail:'Error '+res.status}));
+      throw new Error(e.detail || 'Error '+res.status);
+    }
+    return res.json();
+  } catch(e) {
+    if (e.name === 'TypeError') throw new Error('Sin conexión al servidor');
+    throw e;
+  }
+}
+
+async function uploadFoto(file) {
+  const formData = new FormData();
+  formData.append('foto', file);
+  const hdrs = {};
+  if (token) hdrs['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API + '/api/upload', {method:'POST', headers:hdrs, body:formData});
+  if (!res.ok) throw new Error('Error al subir foto');
+  return res.json(); // { url, ok }
+}
+
+/* ══════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════ */
+function fillLogin(email, pass) {
+  document.getElementById('l-email').value = email;
+  document.getElementById('l-pass').value = pass;
+  document.getElementById('l-email').focus();
+}
+
+function togglePass() {
+  const inp = document.getElementById('l-pass');
+  const ico = document.getElementById('eye-icon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    ico.className = 'ti ti-eye-off';
+  } else {
+    inp.type = 'password';
+    ico.className = 'ti ti-eye';
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function hideLoginError() {
+  const el = document.getElementById('login-error');
+  if (el) el.style.display = 'none';
+}
+
+async function doLogin() {
+  const emailEl = document.getElementById('l-email');
+  const passEl  = document.getElementById('l-pass');
+  const errEl   = document.getElementById('login-error');
+  const btn     = document.getElementById('l-btn');
+
+  const email = (emailEl.value || '').trim().toLowerCase();
+  const pass  = (passEl.value  || '');
+
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+
+  if (!email || !pass) {
+    if (errEl) { errEl.textContent = 'Ingresa email y contraseña'; errEl.style.display = 'block'; }
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Ingresando...';
+
+  try {
+    var res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: pass })
+    });
+
+    var txt = await res.text();
+    var data;
+    try { data = JSON.parse(txt); } catch(pe) {
+      if (errEl) { errEl.textContent = 'Error del servidor: ' + txt.substring(0, 100); errEl.style.display = 'block'; }
+      return;
+    }
+
+    if (!res.ok) {
+      if (errEl) { errEl.textContent = data.detail || ('Error ' + res.status); errEl.style.display = 'block'; }
+      return;
+    }
+
+    token = data.token;
+    user  = data.user;
+    localStorage.setItem('az_token', token);
+    localStorage.setItem('az_user', JSON.stringify(user));
+    initApp();
+
+  } catch(err) {
+    var msg = 'No se puede conectar. Verifica que start.bat esté corriendo.';
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+    console.error('Login error:', err);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-login"></i> Ingresar';
+}
+
+function doLogout() {
+  if (geoWatcher) navigator.geolocation.clearWatch(geoWatcher);
+  localStorage.removeItem('az_token'); localStorage.removeItem('az_user');
+  token = null; user = null;
+  document.getElementById('main-app').classList.remove('show');
+  document.getElementById('login-screen').classList.add('show');
+  document.getElementById('l-email').value = '';
+  document.getElementById('l-pass').value = '';
+}
+
+function initApp() {
+  if (!user || !token) { doLogout(); return; }
+  document.getElementById('login-screen').classList.remove('show');
+  document.getElementById('main-app').classList.add('show');
+  const ini = user.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('t-av').textContent = ini;
+  document.getElementById('t-name').textContent = user.nombre.split(' ')[0];
+  if (user.rol === 'admin') {
+    setRole('admin');
+  } else {
+    setRole('tech');
+  }
+  // En móvil, activar captura directa de cámara
+  if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    document.querySelectorAll('input.hidden-file[accept^="image"]').forEach(el => {
+      el.setAttribute('capture', 'environment');
+    });
+    document.querySelectorAll('input.hidden-file[accept^="video"]').forEach(el => {
+      el.setAttribute('capture', 'environment');
+    });
+  }
+  // Ajustar sidebar en resize
+  window.addEventListener('resize', ()=>{
+    const isAdmin = user.rol==='admin';
+    const isMobile = window.innerWidth<=600;
+    const sbId = isAdmin ? 'sb-admin' : 'sb-tech';
+    const sb = document.getElementById(sbId);
+    if (!sb) return;
+    if (isMobile) {
+      // En móvil: ocultar sidebar fijo (solo se ve en drawer)
+      if (!sb.classList.contains('drawer-open')) sb.style.display = 'none';
+    } else {
+      // En desktop: mostrar sidebar siempre
+      sb.classList.remove('drawer-open');
+      sb.style.display = 'block';
+      document.getElementById('drawer-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+}
+
+/* ══════════════════════════════════════════
+   ROLES & NAVIGATION
+══════════════════════════════════════════ */
+function setRole(role) {
+  curRole = role;
+  const _mob = window.innerWidth <= 600;
+  // En móvil el sidebar se muestra solo cuando se abre el drawer
+  document.getElementById('sb-admin').style.display = (role==='admin' && !_mob) ? 'block' : 'none';
+  document.getElementById('sb-tech').style.display  = (role==='tech'  && !_mob) ? 'block' : 'none';
+  if (role==='admin') adminNav('dashboard', document.querySelector('#sb-admin .nav-item'));
+  else { techNav('t-ruta', document.querySelector('#sb-tech .nav-item')); initGeo(); }
+}
+
+function adminNav(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+id)?.classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('#sb-admin .nav-item').forEach(n=>{
+    if((n.getAttribute('onclick')||'').includes("'"+id+"'")) n.classList.add('active');
+  });
+  document.querySelector('.main-content').scrollTo(0,0);
+  // Limpiar interval del mapa si se navega fuera
+  if (id !== 'mapa' && adminMapInterval) {
+    clearInterval(adminMapInterval);
+    adminMapInterval = null;
+  }
+  const loaders = {dashboard:loadDashboard, clientes:loadClientes, rutas:loadRutas,
+    mapa:initAdminMap, tecnicos:loadTecnicos, novedades:loadNovedades, reportes:loadReportes};
+  loaders[id]?.();
+}
+
+function techNav(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+id)?.classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('#sb-tech .nav-item').forEach(n=>{
+    if((n.getAttribute('onclick')||'').includes("'"+id+"'")) n.classList.add('active');
+  });
+  document.querySelector('.main-content').scrollTo(0,0);
+  // Limpiar interval del mapa si navegamos fuera
+  if (id !== 't-ruta' && techMapInterval) {
+    clearInterval(techMapInterval);
+    techMapInterval = null;
+  }
+  if (id==='t-ruta') loadTechRuta();
+  if (id==='t-historial') loadHistorial();
+}
+
+/* ══════════════════════════════════════════
+   GEOLOCALIZACIÓN
+══════════════════════════════════════════ */
+function initGeo() {
+  if (!('geolocation' in navigator)) {
+    setLocStatus('err','GPS no disponible en este dispositivo');
+    return;
+  }
+  checkPermisos();
+}
+
+async function checkPermisos() {
+  // Verificar permiso de ubicación
+  if (navigator.permissions) {
+    try {
+      const locPerm = await navigator.permissions.query({name:'geolocation'});
+      if (locPerm.state === 'denied') {
+        setLocStatus('err','GPS bloqueado — habilítalo en configuración del navegador');
+        document.getElementById('perm-banner').style.display = 'block';
+        return;
+      }
+    } catch(e) {}
+  }
+  startGeo();
+}
+
+function pedirUbicacion() {
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.getElementById('btn-perm-loc').classList.add('granted');
+    document.getElementById('btn-perm-loc').innerHTML = '<i class="ti ti-check"></i> GPS activado';
+    startGeo();
+    // Ocultar banner si ambos OK
+    ocultarBannerSiListo();
+  }, err => {
+    toast('No se pudo activar el GPS: '+err.message,'error');
+  }, {enableHighAccuracy:true});
+}
+
+function pedirCamara() {
+  navigator.mediaDevices?.getUserMedia({video:true}).then(stream=>{
+    stream.getTracks().forEach(t=>t.stop());
+    document.getElementById('btn-perm-cam').classList.add('granted');
+    document.getElementById('btn-perm-cam').innerHTML = '<i class="ti ti-check"></i> Cámara activada';
+    toast('Cámara activada ✓','success');
+    ocultarBannerSiListo();
+  }).catch(err=>{
+    toast('No se pudo activar la cámara','error');
+  });
+}
+
+function ocultarBannerSiListo() {
+  const loc = document.getElementById('btn-perm-loc').classList.contains('granted');
+  const cam = document.getElementById('btn-perm-cam').classList.contains('granted');
+  if (loc && cam) document.getElementById('perm-banner').style.display = 'none';
+}
+
+function startGeo() {
+  if (geoWatcher) navigator.geolocation.clearWatch(geoWatcher);
+  setLocStatus('ok','Activando GPS...');
+  geoWatcher = navigator.geolocation.watchPosition(
+    pos => {
+      const isFirst = !lastPos;
+      lastPos = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+      const acc = Math.round(pos.coords.accuracy);
+      setLocStatus('ok', `GPS activo · Precisión: ${acc}m`);
+      document.getElementById('perm-banner').style.display = 'none';
+      // Enviar ubicación al servidor
+      enviarUbicacion(lastPos.lat, lastPos.lng);
+      // Actualizar mapa técnico — siempre
+      if (mapTech) {
+        updateTechMapPos(lastPos.lat, lastPos.lng);
+      } else if (isFirst) {
+        // Si aún no se inició el mapa, iniciarlo con la posición actual
+        initTechMap([]);
+      }
+    },
+    err => {
+      if (err.code === 1) {
+        setLocStatus('err','GPS bloqueado — habilítalo en tu navegador');
+        document.getElementById('perm-banner').style.display = 'block';
+      } else {
+        setLocStatus('warn','Sin señal GPS · Reintentando...');
+      }
+    },
+    {enableHighAccuracy:true, maximumAge:10000, timeout:30000}
+  );
+}
+
+function setLocStatus(type, txt) {
+  const el = document.getElementById('loc-status-txt');
+  if (el) el.textContent = txt;
+  const dot = document.querySelector('#loc-indicator .loc-dot') || document.createElement('div');
+  // Update indicator color in header
+  const ind = document.getElementById('loc-indicator');
+  if (ind) ind.style.opacity = type==='ok' ? '1' : type==='warn' ? '.7' : '.5';
+}
+
+let lastUbicEnvio = 0;
+function enviarUbicacion(lat, lng) {
+  const now = Date.now();
+  if (now - lastUbicEnvio < 10000) return; // cada 10s
+  lastUbicEnvio = now;
+  apiCall('/api/ubicacion', {method:'POST', body:JSON.stringify({lat, lng})}).catch(()=>{});
+}
+
+/* ══════════════════════════════════════════
+   FOTOS — CÁMARA Y GALERÍA
+══════════════════════════════════════════ */
+function triggerFoto(n) {
+  document.getElementById('file-'+n).click();
+}
+function triggerFotaNov(n) {
+  document.getElementById('file-n'+n).click();
+}
+
+async function handleFoto(event, n) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await procesarFoto(file, n, 'slot-'+n, fotoUrls);
+  event.target.value = ''; // reset para poder subir la misma foto de nuevo
+}
+
+async function handleFotaNov(event, n) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await procesarFoto(file, n, 'slot-n'+n, fotoNovUrls);
+  event.target.value = '';
+}
+
+async function procesarFoto(file, n, slotId, urlObj) {
+  const slot = document.getElementById(slotId);
+  // Mostrar preview local inmediato
+  const reader = new FileReader();
+  reader.onload = e => {
+    slot.innerHTML = `<img src="${e.target.result}" alt="Foto ${n}">
+      <button class="foto-remove" onclick="${slotId.startsWith('slot-n') ? 'removeFotoNov' : 'removeFoto'}(event,${n})"><i class="ti ti-x"></i></button>
+      <div class="foto-uploading-overlay"><span class="spinner" style="border-color:rgba(26,122,199,.3);border-top-color:var(--blue)"></span></div>`;
+  };
+  reader.readAsDataURL(file);
+
+  // Subir al servidor
+  try {
+    const result = await uploadFoto(file);
+    urlObj[n] = result.url;
+    // Quitar overlay de carga
+    const overlay = slot.querySelector('.foto-uploading-overlay');
+    if (overlay) overlay.remove();
+    toast(`Foto ${n} subida ✓`, 'success');
+  } catch(e) {
+    slot.innerHTML = `<span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span><span class="foto-label">Error — reintentar</span>`;
+    urlObj[n] = null;
+    toast('Error al subir foto: '+e.message, 'error');
+  }
+}
+
+function removeFoto(event, n) {
+  event.stopPropagation();
+  const labels = {1:'Antes',2:'Durante',3:'Después'};
+  document.getElementById('slot-'+n).innerHTML = `
+    <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+    <span class="foto-label">${labels[n]}</span>
+    <button class="foto-remove" onclick="removeFoto(event,${n})"><i class="ti ti-x"></i></button>`;
+  fotoUrls[n] = null;
+  document.getElementById('file-'+n).value = '';
+}
+
+function removeFotoNov(event, n) {
+  event.stopPropagation();
+  document.getElementById('slot-n'+n).innerHTML = `
+    <span class="foto-placeholder"><i class="ti ti-camera-plus"></i></span>
+    <span class="foto-label">Foto ${n}</span>
+    <button class="foto-remove" onclick="removeFotoNov(event,${n})"><i class="ti ti-x"></i></button>`;
+  fotoNovUrls[n] = null;
+  document.getElementById('file-n'+n).value = '';
+}
+
+function verFoto(url) {
+  const base = window.location.origin;
+  document.getElementById('foto-modal-img').src = url.startsWith('http') ? url : base + url;
+  document.getElementById('foto-modal').classList.add('open');
+}
+function closeFotoModal() {
+  document.getElementById('foto-modal').classList.remove('open');
+}
+
+function fotoThumbHtml(url) {
+  if (!url) return '';
+  return `<img class="foto-thumb" src="${url}" onclick="verFoto('${url}')" title="Ver foto">`;
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════ */
+async function loadDashboard() {
+  try {
+    const [stats, tecs, novs] = await Promise.all([
+      apiCall('/api/dashboard'), apiCall('/api/tecnicos'), apiCall('/api/novedades?estado=pendiente')
+    ]);
+    const now = new Date();
+    document.getElementById('dash-fecha').textContent =
+      now.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const tot = stats.rutas_hoy_total||0, comp = stats.rutas_hoy_completados||0;
+    document.getElementById('d-svc').textContent = comp;
+    document.getElementById('d-svc-n').textContent = `de ${tot} programados`;
+    document.getElementById('d-prog').style.width = tot ? Math.round(comp/tot*100)+'%' : '0%';
+    document.getElementById('d-tec').textContent = stats.tecnicos_activos;
+    document.getElementById('d-nov').textContent = stats.novedades_pendientes;
+    document.getElementById('d-mes').textContent = stats.servicios_mes;
+    document.getElementById('dash-banner').innerHTML =
+      `<strong>${stats.tecnicos_activos} técnicos</strong> activos hoy · ${comp}/${tot} servicios · ${stats.novedades_pendientes} novedades pendientes`;
+
+    // Badge — actualizar siempre (ocultar si 0)
+    const badge = document.getElementById('nov-badge');
+    const bellDot = document.getElementById('bell-dot');
+    if (stats.novedades_pendientes > 0) {
+      badge.textContent = stats.novedades_pendientes;
+      badge.style.display = 'inline';
+      if (bellDot) bellDot.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+      if (bellDot) bellDot.style.display = 'none';
+    }
+
+    // Barchart (estático últimos 5 días)
+    document.getElementById('bar-chart').innerHTML = `
+      <div class="bar-col"><div class="bar-val">—</div><div class="bar-fill" style="height:4%;background:var(--border)"></div><div class="bar-lbl">Lun</div></div>
+      <div class="bar-col"><div class="bar-val">—</div><div class="bar-fill" style="height:4%;background:var(--border)"></div><div class="bar-lbl">Mar</div></div>
+      <div class="bar-col"><div class="bar-val">—</div><div class="bar-fill" style="height:4%;background:var(--border)"></div><div class="bar-lbl">Mié</div></div>
+      <div class="bar-col"><div class="bar-val">—</div><div class="bar-fill" style="height:4%;background:var(--border)"></div><div class="bar-lbl">Jue</div></div>
+      <div class="bar-col"><div class="bar-val">${comp}</div><div class="bar-fill" style="height:${tot?Math.round(comp/tot*80):4}%;background:var(--teal)"></div><div class="bar-lbl">Hoy</div></div>`;
+
+    // Técnicos list
+    let th = '';
+    tecs.forEach(t => {
+      const d=t.servicios_hoy.completados, to=t.servicios_hoy.total, pct=to?Math.round(d/to*100):0;
+      const live = t.ubicacion ? `<span style="font-size:10px;color:var(--teal)"><i class="ti ti-circle-filled" style="font-size:8px"></i> En vivo</span>` : '';
+      th += `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500">${t.nombre} ${live}</span>
+          <span style="font-size:11px;color:var(--text2)">${d}/${to} <span class="badge ${d===to&&to>0?'b-done':'b-active'}" style="font-size:10px">${d===to&&to>0?'Completo':'Activo'}</span></span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:var(--blue)"></div></div>
+      </div>`;
+    });
+    document.getElementById('d-tec-list').innerHTML = th || '<p style="color:var(--text2);font-size:13px">Sin técnicos activos hoy</p>';
+
+    // Novedades recientes
+    const pMap={alta:'aico-red',media:'aico-amber',baja:'aico-teal'};
+    let nh = novs.slice(0,3).map(n=>`
+      <div class="alert-row">
+        <div class="alert-ico ${pMap[n.prioridad]||'aico-blue'}"><i class="ti ti-alert-triangle"></i></div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${n.tipo} — ${n.cliente_nombre}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px">${n.tecnico_nombre} · <span class="badge b-${n.prioridad==='alta'?'high':n.prioridad==='media'?'med':'low'}">${n.prioridad}</span></div>
+        </div>
+        <button class="btn sm primary" onclick="atenderNovedad(${n.id})">Atender</button>
+      </div>`).join('');
+    document.getElementById('d-nov-list').innerHTML = nh || '<p style="color:var(--text2);font-size:13px">Sin novedades pendientes ✓</p>';
+  } catch(e) { toast('Error dashboard: '+e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════
+   CLIENTES
+══════════════════════════════════════════ */
+async function loadClientes() {
+  try {
+    cliData = await apiCall('/api/clientes');
+    document.getElementById('cli-count').textContent = `${cliData.length} registrados`;
+    renderCli(cliData);
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+function renderCli(data) {
+  const tb = document.getElementById('tbody-cli');
+  if (!data.length) { tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:32px">No hay clientes registrados</td></tr>'; return; }
+  tb.innerHTML = data.map(c=>`<tr>
+    <td><strong>${c.nombre}</strong><div style="font-size:11px;color:var(--text2)">${c.direccion}</div></td>
+    <td>${c.tipo_piscina}</td>
+    <td><span class="svc-tag">${c.servicio_principal||'—'}</span></td>
+    <td>${c.frecuencia}</td>
+    <td>${c.telefono||'—'}</td>
+    <td style="white-space:nowrap">
+      <button class="btn sm ghost" onclick="verClienteDetalle(${c.id})" title="Ver historial"><i class="ti ti-eye"></i></button>
+      ${!c.lat?`<button class="btn sm" onclick="geocodificarCliente(${c.id},'${c.nombre.replace(/'/g,"'")}','${c.direccion.replace(/'/g,"'")}',this)" title="Obtener coordenadas GPS" style="color:var(--amber);border-color:var(--amber)"><i class="ti ti-map-pin"></i></button>`:'<span style="color:var(--teal);font-size:11px" title="GPS listo"><i class="ti ti-map-pin-filled"></i></span>'}
+    </td>
+  </tr>`).join('');
+}
+function filterCli(q) { renderCli(cliData.filter(c=>c.nombre.toLowerCase().includes(q.toLowerCase())||c.direccion.toLowerCase().includes(q.toLowerCase()))); }
+function filterCliTipo(t) { renderCli(t?cliData.filter(c=>c.tipo_piscina===t):cliData); }
+
+async function saveCliente() {
+  const d = {
+    nombre: document.getElementById('nc-nom').value.trim(),
+    telefono: document.getElementById('nc-tel').value.trim(),
+    direccion: document.getElementById('nc-dir').value.trim(),
+    tipo_piscina: document.getElementById('nc-tipo').value,
+    frecuencia: document.getElementById('nc-freq').value,
+    servicio_principal: document.getElementById('nc-svc').value,
+    notas: document.getElementById('nc-notas').value.trim(),
+  };
+  if (!d.nombre || !d.direccion) { toast('Nombre y dirección son requeridos','warning'); return; }
+  try {
+    await apiCall('/api/clientes', {method:'POST', body:JSON.stringify(d)});
+    toast('Cliente guardado ✓','success');
+    closeModal('modal-new-client');
+    ['nc-nom','nc-tel','nc-dir','nc-notas'].forEach(id=>document.getElementById(id).value='');
+    loadClientes();
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+async function geocodificarCliente(id, nombre, direccion, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="border-color:rgba(202,111,30,.3);border-top-color:var(--amber)"></span>';
+  try {
+    const r = await apiCall(`/api/clientes/${id}/geocode`, {method:'POST'});
+    toast(`📍 ${nombre} geocodificado ✓`, 'success');
+    btn.outerHTML = '<span style="color:var(--teal);font-size:11px" title="GPS listo"><i class="ti ti-map-pin-filled"></i></span>';
+    loadClientes();
+  } catch(e) {
+    toast('No se pudo geocodificar: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-map-pin"></i>';
+  }
+}
+
+async function verClienteDetalle(id) {
+  try {
+    const [cli, hist] = await Promise.all([apiCall(`/api/clientes/${id}`), apiCall(`/api/clientes/${id}/historial`)]);
+    const histHtml = hist.map(r=>{
+      const acts = JSON.parse(r.actividades||'[]');
+      const fotos = [r.evidencia_url, r.evidencia_url2, r.evidencia_url3].filter(Boolean);
+      return `<tr>
+        <td style="font-size:12px">${new Date(r.fecha).toLocaleDateString('es-CO')}</td>
+        <td>${r.tecnico_nombre}</td>
+        <td style="font-size:11px">${acts.join(', ')||'—'}</td>
+        <td><div class="foto-thumbs">${fotos.map(u=>fotoThumbHtml(u)).join('')}</div></td>
+        <td><span class="badge ${r.estado_servicio==='finalizado'?'b-done':'b-active'}">${r.estado_servicio}</span></td>
+      </tr>`;
+    }).join('');
+    // Abrir como modal temporal
+    const m = document.createElement('div');
+    m.className = 'modal-overlay open';
+    m.style.zIndex = '600';
+    m.innerHTML = `<div class="modal" style="max-width:680px">
+      <div class="modal-hd"><h2>${cli.nombre}</h2><button class="modal-close" onclick="this.closest('.modal-overlay').remove()"><i class="ti ti-x"></i></button></div>
+      <div class="two-col" style="margin-bottom:16px;font-size:13px">
+        <div><span class="flbl">Dirección</span><p>${cli.direccion}</p></div>
+        <div><span class="flbl">Teléfono</span><p>${cli.telefono||'—'}</p></div>
+        <div><span class="flbl">Tipo</span><p>${cli.tipo_piscina}</p></div>
+        <div><span class="flbl">Frecuencia</span><p>${cli.frecuencia}</p></div>
+      </div>
+      ${cli.notas ? `<div class="info-banner blue" style="margin-bottom:14px"><i class="ti ti-note"></i>${cli.notas}</div>` : ''}
+      <div class="card-hd" style="margin-bottom:10px"><i class="ti ti-history" style="color:var(--blue);font-size:18px"></i>Historial de visitas (${hist.length})</div>
+      ${hist.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Técnico</th><th>Actividades</th><th>Fotos</th><th>Estado</th></tr></thead><tbody>${histHtml}</tbody></table></div>` : '<p style="color:var(--text2)">Sin visitas registradas</p>'}
+    </div>`;
+    m.onclick = e => { if(e.target===m) m.remove(); };
+    document.body.appendChild(m);
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════
+   RUTAS
+══════════════════════════════════════════ */
+async function loadRutas() {
+  try {
+    const hoy = new Date().toISOString().split('T')[0];
+    const [tecs, rutasHoy] = await Promise.all([
+      apiCall('/api/tecnicos'),
+      apiCall('/api/rutas?fecha='+hoy)
+    ]);
+    const sel = document.getElementById('r-tec');
+    sel.innerHTML = '<option value="">Seleccionar tecnico...</option>';
+    tecs.forEach(t => {
+      const tieneRuta = rutasHoy.find(r=>r.tecnico_id===t.id);
+      const d=tieneRuta ? (tieneRuta.completados||0)+'/'+tieneRuta.total : '';
+      sel.innerHTML += '<option value="'+t.id+'">'+t.nombre+(tieneRuta?' (ruta: '+d+')':'')+'</option>';
+    });
+    document.getElementById('r-fecha').value = hoy;
+
+    // Mostrar rutas del dia
+    let resumenEl = document.getElementById('rutas-hoy-resumen');
+    if (!resumenEl) {
+      resumenEl = document.createElement('div');
+      resumenEl.id = 'rutas-hoy-resumen';
+      const pRutas = document.getElementById('p-rutas');
+      pRutas.insertBefore(resumenEl, pRutas.querySelector('.card'));
+    }
+    if (rutasHoy.length) {
+      let html = '<div class="card" style="margin-bottom:16px"><div class="card-hd" style="margin-bottom:12px"><i class="ti ti-list-check"></i>Rutas de hoy ('+rutasHoy.length+')</div>';
+      rutasHoy.forEach(r => {
+        const pct = r.total ? Math.round((r.completados||0)/r.total*100) : 0;
+        const badge = r.estado==='completada'?'b-done':r.estado==='en_curso'?'b-active':'b-pending';
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">'
+          +'<div style="flex:1"><span style="font-weight:600;font-size:13px">'+r.tecnico_nombre+'</span>'
+          +'<span style="color:var(--text2);font-size:11px;margin-left:8px">'+(r.completados||0)+'/'+r.total+' completados</span></div>'
+          +'<div class="prog-bar" style="width:80px"><div class="prog-fill" style="width:'+pct+'%;background:var(--blue)"></div></div>'
+          +'<span class="badge '+badge+'">'+(r.estado||'pendiente')+'</span></div>';
+      });
+      resumenEl.innerHTML = html + '</div>';
+    } else {
+      resumenEl.innerHTML = '';
+    }
+
+    if (!cliData.length) cliData = await apiCall('/api/clientes');
+    if (cliData.length) {
+      let chipsHtml = '';
+      cliData.forEach(c => {
+        const safeNombre = c.nombre.replace(/"/g,'&quot;');
+        chipsHtml += `<div class="chip" onclick="toggleChip(this,${c.id},&quot;${safeNombre}&quot;)"><i class="ti ti-building" style="font-size:15px;color:var(--teal)"></i>${c.nombre}<span class="chip-freq">${c.frecuencia}</span></div>`;
+      });
+      document.getElementById('chips-cli').innerHTML = chipsHtml;
+    } else {
+      document.getElementById('chips-cli').innerHTML = '<div class="info-banner amber"><i class="ti ti-alert-circle"></i>No hay clientes. Crea clientes primero en la sección Clientes.</div>';
+    }
+  } catch(e) { toast('Error cargando rutas: '+e.message,'error'); }
+}
+
+function toggleChip(el, id, name) {
+  el.classList.toggle('sel');
+  if (el.classList.contains('sel')) { if(!routeCli.find(r=>r.id===id)) routeCli.push({id,name}); }
+  else routeCli = routeCli.filter(r=>r.id!==id);
+  renderRouteOrder();
+}
+
+function renderRouteOrder() {
+  const c = document.getElementById('route-order');
+  if (!routeCli.length) {
+    c.innerHTML = '<div style="text-align:center;padding:28px;border:2px dashed var(--border);border-radius:var(--rl);font-size:13px;color:var(--text3)"><i class="ti ti-arrow-left" style="font-size:22px;display:block;margin-bottom:6px"></i>Selecciona clientes</div>'; return;
+  }
+  c.innerHTML = routeCli.map((r,i)=>`<div class="ord-item"><div class="ord-num">${i+1}</div><span style="flex:1">${r.name}</span><i class="ti ti-grip-vertical" style="color:var(--text3)"></i></div>`).join('');
+}
+
+async function saveRuta() {
+  const tid = document.getElementById('r-tec').value;
+  const fecha = document.getElementById('r-fecha').value;
+  const tecNombre = document.getElementById('r-tec').selectedOptions[0]?.text || '';
+  if (!tid) { toast('Selecciona un técnico','warning'); return; }
+  if (!routeCli.length) { toast('Agrega al menos un cliente','warning'); return; }
+  if (!fecha) { toast('Selecciona una fecha','warning'); return; }
+
+  const btn = event?.target?.closest?.('button') || document.querySelector('[onclick="saveRuta()"]');
+  const originalText = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Guardando...'; }
+
+  try {
+    const r = await apiCall('/api/rutas', {method:'POST', body:JSON.stringify({
+      tecnico_id: parseInt(tid), fecha,
+      clientes: routeCli.map((r,i)=>({cliente_id:r.id, orden:i+1}))
+    })});
+
+    // Confirmar visualmente
+    toast(`✅ Ruta asignada a ${tecNombre} — ${routeCli.length} clientes`, 'success');
+
+    // Mostrar resumen de la ruta creada
+    const rutaInfo = document.getElementById('ruta-confirmacion');
+    if (rutaInfo) {
+      rutaInfo.style.display = 'block';
+      rutaInfo.innerHTML = `<div class="info-banner teal">
+        <i class="ti ti-check"></i>
+        <span><strong>Ruta creada</strong> para <strong>${tecNombre}</strong> — 
+        ${routeCli.length} clientes — Fecha: ${new Date(fecha+'T12:00:00').toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'})}</span>
+      </div>`;
+      setTimeout(()=>{ if(rutaInfo) rutaInfo.style.display='none'; }, 5000);
+    }
+
+    routeCli = [];
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+    renderRouteOrder();
+  } catch(e) {
+    toast('Error al guardar ruta: '+e.message,'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
+  }
+}
+
+/* ══════════════════════════════════════════
+   TÉCNICOS
+══════════════════════════════════════════ */
+async function loadTecnicos() {
+  _filtroUsuario = _filtroUsuario || 'todos';
+  await _renderUsuarios(_filtroUsuario);
+}
+
+let _filtroUsuario = 'todos';
+let _allUsuarios = [];
+
+async function filtrarUsuarios(tipo, btn) {
+  _filtroUsuario = tipo;
+  // Actualizar botones
+  document.querySelectorAll('#filter-todos,#filter-tecnicos,#filter-admins').forEach(b => {
+    b.className = 'btn sm ghost';
+  });
+  if (btn) btn.className = 'btn sm active';
+  await _renderUsuarios(tipo);
+}
+
+async function _renderUsuarios(filtro) {
+  try {
+    const rolParam = filtro === 'todos' ? '' : filtro;
+    const url = '/api/usuarios' + (rolParam ? `?rol=${rolParam}` : '');
+    const data = await apiCall(url);
+    _allUsuarios = data;
+    const colors = [['var(--blue-lt)','var(--blue-dk)'],['var(--teal-lt)','var(--teal-dk)'],['var(--amber-lt)','var(--amber)'],['var(--blue-lt)','var(--blue)']];
+    document.getElementById('tech-grid').innerHTML = data.length ? data.map((t,i)=>{
+      const ini = t.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const c = colors[i%4];
+      const isAdmin = t.rol === 'admin';
+      const rolBadge = isAdmin
+        ? `<span style="font-size:10px;background:rgba(15,90,158,.12);color:var(--blue);padding:2px 8px;border-radius:20px;font-weight:600"><i class="ti ti-shield-check"></i> Admin</span>`
+        : `<span style="font-size:10px;background:rgba(20,138,110,.12);color:var(--teal-dk);padding:2px 8px;border-radius:20px;font-weight:600"><i class="ti ti-tool"></i> Técnico</span>`;
+      const live = !isAdmin && t.ubicacion
+        ? `<span style="font-size:11px;color:var(--teal);font-weight:500"><i class="ti ti-circle-filled" style="font-size:9px"></i> Activo en vivo</span>`
+        : '<span style="font-size:11px;color:var(--text3)">' + (isAdmin ? 'Administrador' : 'Sin ubicación') + '</span>';
+      const stats = !isAdmin && t.servicios_hoy ? `
+        <div style="display:flex;gap:6px;margin:10px 0">
+          <div style="flex:1;background:var(--bg);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:16px;font-weight:700;color:var(--blue)">${t.servicios_hoy.completados}</div>
+            <div style="font-size:9px;color:var(--text2);text-transform:uppercase">Completados</div>
+          </div>
+          <div style="flex:1;background:var(--bg);border-radius:8px;padding:8px;text-align:center">
+            <div style="font-size:16px;font-weight:700">${t.servicios_hoy.total}</div>
+            <div style="font-size:9px;color:var(--text2);text-transform:uppercase">Asignados</div>
+          </div>
+        </div>` : '';
+      return `<div class="card" style="padding:16px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:44px;height:44px;border-radius:50%;background:${c[0]};color:${c[1]};font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ini}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:14px;color:var(--text1)">${t.nombre}</div>
+            <div style="font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.email}</div>
+          </div>
+          ${rolBadge}
+        </div>
+        ${live}
+        ${stats}
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+          ${!isAdmin ? `<button class="btn sm" onclick="adminNav('rutas',null)"><i class="ti ti-route"></i> Ruta</button>` : ''}
+          <button class="btn sm ghost" onclick="abrirCambioClaveAdmin(${t.id},'${t.nombre.replace(/'/g,"\'")}}','${t.email}')" style="color:var(--blue)" title="Cambiar contraseña"><i class="ti ti-lock"></i> Clave</button>
+          <button class="btn sm danger" onclick="eliminarTecnico(${t.id},'${t.nombre.replace(/'/g,"\'")}')" title="Desactivar"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`;
+    }).join('') : '<div class="info-banner"><i class="ti ti-users"></i><span>No hay usuarios registrados con este filtro.</span></div>';
+  } catch(e) { toast('Error cargando usuarios: '+e.message,'error'); }
+}
+
+
+async function saveTecnico() {
+  const rolEl2 = document.getElementById('nt-rol');
+  const d = {nombre:document.getElementById('nt-nom').value.trim(), email:document.getElementById('nt-email').value.trim(), telefono:document.getElementById('nt-tel').value.trim(), password:document.getElementById('nt-pass').value, rol: rolEl2 ? rolEl2.value : 'tecnico'};
+  if (!d.nombre||!d.email) { toast('Nombre y email requeridos','warning'); return; }
+  if (d.password && d.password.length < 8) { toast('La contraseña debe tener al menos 8 caracteres','warning'); return; }
+  try {
+    await apiCall('/api/tecnicos', {method:'POST', body:JSON.stringify(d)});
+    toast('Técnico registrado ✓','success');
+    closeModal('modal-new-tech');
+    ['nt-nom','nt-tel','nt-email','nt-pass'].forEach(id=>document.getElementById(id).value='');
+    loadTecnicos();
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+let _ccUserId = null;
+let _ccTecEmail = '';
+let _otpInterval = null;
+
+function abrirCambioClaveAdmin(id, nombre, email) {
+  // Usar modal OTP (más seguro) en vez del directo
+  _ccUserId = id;
+  _ccTecEmail = email;
+  document.getElementById('otp-tec-nombre').textContent = nombre;
+  document.getElementById('otp-nueva-pass').value = '';
+  document.getElementById('otp-nueva-pass2').value = '';
+  openModal('modal-otp-clave');
+  _startOTPTimer();
+  setTimeout(()=>document.getElementById('otp-nueva-pass').focus(), 300);
+}
+
+function _startOTPTimer() {
+  if (_otpInterval) clearInterval(_otpInterval);
+  _updateOTP();
+  _otpInterval = setInterval(_updateOTP, 1000);
+}
+
+async function _updateOTP() {
+  try {
+    const data = await apiCall('/api/otp/current');
+    document.getElementById('otp-display').textContent = data.otp;
+    const sec = data.seconds_remaining;
+    document.getElementById('otp-countdown').textContent = sec;
+    document.getElementById('otp-bar').style.width = (sec / data.interval * 100) + '%';
+    // Color urgencia
+    const color = sec <= 10 ? '#C0392B' : sec <= 20 ? '#E67E22' : 'var(--blue)';
+    document.getElementById('otp-display').style.color = color;
+    document.getElementById('otp-countdown').style.color = color;
+  } catch(e) { /* silencioso */ }
+}
+
+async function confirmarCambioClaveConOTP() {
+  const nueva  = document.getElementById('otp-nueva-pass').value.trim();
+  const nueva2 = document.getElementById('otp-nueva-pass2').value.trim();
+  if (!nueva)          { toast('Ingresa la nueva contraseña','warning'); return; }
+  if (nueva.length < 6){ toast('Mínimo 6 caracteres','warning'); return; }
+  if (nueva !== nueva2){ toast('Las contraseñas no coinciden','error'); return; }
+  // El admin cambia directo (tiene permisos)
+  try {
+    await apiCall(`/api/tecnicos/${_ccUserId}/password`, {
+      method:'PATCH', body:JSON.stringify({password:nueva})
+    });
+    if (_otpInterval) clearInterval(_otpInterval);
+    toast('Contraseña actualizada ✓','success');
+    closeModal('modal-otp-clave');
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+function abrirCambioClaveAdmin(id, nombre, email) {
+  _ccUserId = id;
+  document.getElementById('cc-nombre').textContent = nombre + ' (' + email + ')';
+  document.getElementById('cc-pass').value = '';
+  document.getElementById('cc-pass2').value = '';
+  openModal('modal-cambio-clave');
+  setTimeout(() => document.getElementById('cc-pass').focus(), 200);
+}
+
+async function guardarCambioClaveAdmin() {
+  const pass  = document.getElementById('cc-pass').value.trim();
+  const pass2 = document.getElementById('cc-pass2').value.trim();
+  if (!pass)         { toast('Ingresa la nueva contraseña','warning'); return; }
+  if (pass.length<6) { toast('Mínimo 6 caracteres','warning'); return; }
+  if (pass !== pass2){ toast('Las contraseñas no coinciden','error'); return; }
+  try {
+    await apiCall(`/api/tecnicos/${_ccUserId}/password`, {
+      method:'PATCH', body:JSON.stringify({password:pass})
+    });
+    toast('Contraseña actualizada ✓','success');
+    closeModal('modal-cambio-clave');
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+async function eliminarTecnico(id, nombre) {
+  if (!confirm(`¿Desactivar al técnico ${nombre}?`)) return;
+  try { await apiCall(`/api/tecnicos/${id}`, {method:'DELETE'}); toast('Técnico desactivado','success'); loadTecnicos(); }
+  catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════
+   NOVEDADES
+══════════════════════════════════════════ */
+async function loadNovedades(prio='') {
+  try {
+    const data = await apiCall('/api/novedades'+(prio?`?prioridad=${prio}`:''));
+    window._mediaStore = []; window._addMedia = window._addMedia || function(i,t){var x=window._mediaStore.length;window._mediaStore.push({items:i,title:t});return x;}; // reset
+    window._novedadesCache = data;
+    document.getElementById('nov-count').textContent = `${data.length} registradas`;
+    const pMap={alta:'b-high',media:'b-med',baja:'b-low'}, eMap={pendiente:'b-pending',gestionado:'b-done'};
+    document.getElementById('tbody-nov').innerHTML = data.length ? data.map(n=>{
+      const medias = [
+        n.evidencia_url   ? {t:'image',u:n.evidencia_url}   : null,
+        n.evidencia_url2  ? {t:'image',u:n.evidencia_url2}  : null,
+        n.video_url       ? {t:'video',u:n.video_url}       : null,
+      ].filter(Boolean);
+      const mCount = medias.length;
+      const mTitle = n.tipo + ' — ' + (n.cliente_nombre||'');
+      const mItems = medias.map(x=>({type:x.t,url:x.u}));
+      const mIdx = mCount ? window._addMedia(mItems, mTitle) : -1;
+      return `<tr>
+      <td><span class="badge b-alert">${n.tipo}</span></td>
+      <td><strong>${n.cliente_nombre}</strong></td>
+      <td>${n.tecnico_nombre}</td>
+      <td style="max-width:160px;font-size:12px">${n.descripcion}</td>
+      <td>
+        ${mCount ? `<button class="btn sm ghost" onclick="openMediaByIdx(${mIdx})" style="gap:5px;color:var(--blue)">
+          <i class="ti ti-photo-video"></i> ${mCount} archivo${mCount>1?'s':''}
+        </button>` : '<span style="color:var(--text3);font-size:12px">—</span>'}
+      </td>
+      <td><span class="badge ${pMap[n.prioridad]}">${n.prioridad}</span></td>
+      <td><span class="badge ${eMap[n.estado]||'b-pending'}">${n.estado}</span></td>
+      <td>${n.estado==='pendiente'?`<div style="display:flex;gap:6px">
+          <button class="btn sm ghost" onclick="verDetalleNovedad(${n.id},${mIdx},'${n.tipo.replace(/'/g,"\'")} — ${(n.cliente_nombre||'').replace(/'/g,"\'")}')" style="color:var(--blue)"><i class="ti ti-eye"></i></button>
+          <button class="btn sm primary" onclick="atenderNovedad(${n.id})"><i class="ti ti-check"></i> Atender</button>
+        </div>`:`<div style="display:flex;gap:6px;align-items:center">
+          <button class="btn sm ghost" onclick="window.openMediaByIdx(${mIdx})" style="color:var(--blue)"><i class="ti ti-eye"></i></button>
+          <span style="color:var(--teal);font-size:12px"><i class="ti ti-circle-check"></i> OK</span>
+        </div>`}</td>
+    </tr>`;}).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text2);padding:32px">No hay novedades ✓</td></tr>';
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+function verDetalleNovedad(id, mIdx, titulo) {
+  // Abrir galería si hay archivos
+  if (mIdx >= 0 && window._mediaStore[mIdx] && window._mediaStore[mIdx].items.length) {
+    window.openMediaByIdx(mIdx);
+  } else {
+    toast('Sin evidencia adjunta en esta novedad','warning');
+  }
+}
+
+async function atenderNovedad(id) {
+  try { await apiCall(`/api/novedades/${id}/estado`, {method:'PATCH', body:JSON.stringify({estado:'gestionado'})}); toast('Novedad gestionada ✓','success'); loadNovedades(); loadDashboard(); }
+  catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════
+   REPORTES
+══════════════════════════════════════════ */
+async function loadReportes() {
+  try {
+    const [stats, reps] = await Promise.all([apiCall('/api/dashboard'), apiCall('/api/reportes?limit=50')]);
+    document.getElementById('r-mes').textContent = stats.servicios_mes;
+    document.getElementById('r-hoy').textContent = stats.finalizados_hoy;
+    document.getElementById('r-nov').textContent = stats.novedades_pendientes;
+    const rtec=document.getElementById('r-tec-val'); if(rtec) rtec.textContent=stats.tecnicos_activos;
+    window._mediaStore = []; // reset
+    window._reportesCache = reps;
+    document.getElementById('tbody-rep').innerHTML = reps.length ? reps.map(r=>{
+      const acts = JSON.parse(r.actividades||'[]');
+      const rMedias = [
+        r.evidencia_url  ? {t:'image',u:r.evidencia_url}  : null,
+        r.evidencia_url2 ? {t:'image',u:r.evidencia_url2} : null,
+        r.evidencia_url3 ? {t:'image',u:r.evidencia_url3} : null,
+        r.video_url      ? {t:'video',u:r.video_url}      : null,
+      ].filter(Boolean);
+      const rCount = rMedias.length;
+      const rTitle = 'Reporte: ' + (r.cliente_nombre||'');
+      const rItems = rMedias.map(x=>({type:x.t,url:x.u}));
+      const rIdx = rCount ? window._addMedia(rItems, rTitle) : -1;
+      return `<tr>
+        <td><strong>${r.cliente_nombre}</strong></td>
+        <td>${r.tecnico_nombre}</td>
+        <td style="font-size:12px">${new Date(r.fecha).toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'})}</td>
+        <td>${acts.map(a=>`<span class="svc-tag">${a}</span>`).join('')||'—'}</td>
+        <td>
+          ${rCount ? `<button class="btn sm ghost" onclick="openMediaByIdx(${rIdx})" style="gap:5px;color:var(--blue)">
+            <i class="ti ti-photo-video"></i> ${rCount} archivo${rCount>1?'s':''}
+          </button>` : '<span style="color:var(--text3);font-size:12px">Sin evidencia</span>'}
+        </td>
+        <td><span class="badge ${r.estado_servicio==='finalizado'?'b-done':r.estado_servicio==='en_proceso'?'b-active':'b-alert'}">${r.estado_servicio}</span></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:32px">Sin registros</td></tr>';
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+/* ══════════════════════════════════════════
+   MAPA ADMIN
+══════════════════════════════════════════ */
+function mkIcon(color,size=14){return L.divIcon({html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>`,className:'',iconAnchor:[size/2,size/2]})}
+function mkTechIcon(ini){return L.divIcon({html:`<div style="background:#0F5A9E;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);font-family:sans-serif">${ini}</div>`,className:'',iconAnchor:[16,16]})}
+
+// (adminMapInterval y adminMapMarkers declarados globalmente)
+
+async function initAdminMap() {
+  if (!mapAdmin) {
+    // Centro en Pereira, Colombia
+    mapAdmin = L.map('map-admin').setView([4.8133, -75.6961], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {attribution:'© OpenStreetMap', maxZoom:19}).addTo(mapAdmin);
+  }
+  setTimeout(()=>mapAdmin.invalidateSize(),100);
+  await refreshMapData();
+
+  // Auto-refresh cada 15 segundos
+  if (adminMapInterval) clearInterval(adminMapInterval);
+  adminMapInterval = setInterval(async ()=>{
+    // Solo refrescar si la página del mapa está activa
+    if (document.getElementById('p-mapa')?.classList.contains('active')) {
+      await refreshMapData();
+      updateMapTimestamp();
+    }
+  }, 15000);
+}
+
+async function refreshMapData() {
+  try {
+    const [tecs, clientes, novs, ubics] = await Promise.all([
+      apiCall('/api/tecnicos'), apiCall('/api/clientes'),
+      apiCall('/api/novedades?estado=pendiente'), apiCall('/api/ubicaciones')
+    ]);
+    const novCli = new Set(novs.map(n=>n.cliente_id));
+
+    // Limpiar markers de clientes (se recrean siempre)
+    mapAdmin.eachLayer(l=>{
+      if (l instanceof L.Marker && !l._isTechMarker) mapAdmin.removeLayer(l);
+    });
+
+    // Markers de clientes
+    const allCoords = [];
+    clientes.forEach(c=>{
+      if (!c.lat||!c.lng) return;
+      allCoords.push([c.lat, c.lng]);
+      const color = novCli.has(c.id)?'#C0392B':'#F5C842';
+      L.marker([c.lat,c.lng],{icon:mkIcon(color,16)})
+        .addTo(mapAdmin)
+        .bindPopup(`<b>${c.nombre}</b><br>${c.tipo_piscina} · ${c.frecuencia}${novCli.has(c.id)?'<br>⚠️ Novedad pendiente':''}`);
+    });
+
+    // Markers de técnicos — actualizar suavemente sin recrear
+    const tecIds = new Set(Object.keys(ubics).map(Number));
+    // Quitar técnicos que ya no están activos
+    Object.keys(adminMapMarkers).forEach(tid=>{
+      if (!tecIds.has(Number(tid))) {
+        mapAdmin.removeLayer(adminMapMarkers[tid]);
+        delete adminMapMarkers[tid];
+      }
+    });
+    // Agregar / mover técnicos activos
+    Object.entries(ubics).forEach(([tid, info])=>{
+      const ini = info.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      allCoords.push([info.lat, info.lng]);
+      const diffMin = Math.round((Date.now() - new Date(info.timestamp).getTime())/60000);
+      const timeStr = diffMin < 1 ? 'Ahora mismo' : `hace ${diffMin} min`;
+      const popup = `<b>🔧 ${info.nombre}</b><br><span style="color:#1DAA8A">● En vivo</span> · ${timeStr}<br><a href="https://maps.google.com?q=${info.lat},${info.lng}" target="_blank">Ver en Google Maps</a>`;
+      if (adminMapMarkers[tid]) {
+        adminMapMarkers[tid].setLatLng([info.lat, info.lng]);
+        adminMapMarkers[tid].getPopup()?.setContent(popup);
+      } else {
+        const m = L.marker([info.lat, info.lng], {icon:mkTechIcon(ini), zIndexOffset:1000});
+        m._isTechMarker = true;
+        m.addTo(mapAdmin).bindPopup(popup);
+        adminMapMarkers[tid] = m;
+      }
+    });
+
+    // Ajustar vista al contenido si hay puntos
+    if (allCoords.length > 0) {
+      try { mapAdmin.fitBounds(L.latLngBounds(allCoords), {padding:[40,40], maxZoom:16}); }
+      catch(e) {}
+    }
+
+    // Tabla de técnicos con estado en vivo
+    const ubicsArr = Object.entries(ubics);
+    document.getElementById('mapa-tec-tbody').innerHTML = tecs.length ? tecs.map(t=>{
+      const d=t.servicios_hoy.completados, to=t.servicios_hoy.total, pct=to?Math.round(d/to*100):0;
+      const ub = ubics[t.id] || ubics[String(t.id)];
+      const diffMin = ub ? Math.round((Date.now()-new Date(ub.timestamp).getTime())/60000) : null;
+      const liveStr = ub
+        ? `<span style="color:var(--teal);font-size:11px;font-weight:600"><i class="ti ti-circle-filled" style="font-size:8px"></i> En vivo · ${diffMin<1?'ahora':diffMin+'min'}</span>`
+        : '<span style="color:var(--text3);font-size:11px">Sin GPS activo</span>';
+      return `<tr>
+        <td><strong>${t.nombre}</strong><br>${liveStr}</td>
+        <td>${d}/${to}
+          <div class="prog-bar" style="margin-top:4px">
+            <div class="prog-fill" style="width:${pct}%;background:var(--blue)"></div>
+          </div>
+        </td>
+        <td>${ub?`<a href="https://maps.google.com?q=${ub.lat},${ub.lng}" target="_blank" style="color:var(--blue);font-size:12px">📍 Ver en Maps</a>`:'—'}</td>
+        <td><span class="badge ${d===to&&to>0?'b-done':ub?'b-active':'b-pending'}">${d===to&&to>0?'Completo':ub?'En ruta':'Sin ruta'}</span></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:20px">No hay técnicos registrados</td></tr>';
+
+    updateMapTimestamp();
+  } catch(e) { console.error('Map error:', e); }
+}
+
+function updateMapTimestamp() {
+  const el = document.querySelector('#p-mapa .ph p');
+  if (el) el.textContent = `Última actualización: ${new Date().toLocaleTimeString('es-CO')} · Auto-refresh cada 15s`;
+}
+
+function refreshAdminMap() {
+  refreshMapData();
+  toast('Mapa actualizado ✓','success');
+}
+
+/* ══════════════════════════════════════════
+   MAPA TÉCNICO
+══════════════════════════════════════════ */
+// (techRouteDets, techRouteLayer, techMapInterval declarados globalmente)
+var navPanel = null;
+
+// Iconos de destino (clientes)
+function mkDestIcon(num, color) {
+  return L.divIcon({
+    html: `<div style="background:${color};color:white;border-radius:50% 50% 50% 0;
+      width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;border:2.5px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,.35);transform:rotate(-45deg)">
+        <span style="transform:rotate(45deg)">${num}</span></div>`,
+    className:'', iconAnchor:[15,30]
+  });
+}
+
+function mkMyIcon() {
+  return L.divIcon({
+    html: `<div style="background:#0F5A9E;color:white;border-radius:50%;
+      width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+      font-size:18px;border:3px solid white;box-shadow:0 2px 10px rgba(15,90,158,.5)">🔧</div>`,
+    className:'', iconAnchor:[18,18]
+  });
+}
+
+async function getOSRMRoute(fromLat, fromLng, toLat, toLng) {
+  // Usar OSRM público para calcular la ruta real por calles
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}?overview=full&geometries=geojson&steps=false`;
+    const res = await fetch(url, {signal: AbortSignal.timeout(5000)});
+    const data = await res.json();
+    if (data.code === 'Ok' && data.routes.length) {
+      const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+      const dist = (data.routes[0].distance / 1000).toFixed(1);
+      const mins = Math.round(data.routes[0].duration / 60);
+      return { coords, dist, mins };
+    }
+  } catch(e) { console.log('OSRM:', e.message); }
+  // Fallback: línea recta si OSRM falla
+  return { coords: [[fromLat,fromLng],[toLat,toLng]], dist:'?', mins:'?' };
+}
+
+function getNavPanel() {
+  let panel = document.getElementById('nav-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'nav-panel';
+    panel.style.cssText = `
+      position:absolute;bottom:10px;left:10px;right:10px;z-index:1000;
+      background:white;border-radius:12px;padding:12px 14px;
+      box-shadow:0 4px 20px rgba(0,0,0,.2);
+      display:flex;align-items:center;gap:10px;
+      font-family:'Plus Jakarta Sans',sans-serif;
+    `;
+    document.getElementById('map-tech').appendChild(panel);
+  }
+  return panel;
+}
+
+function updateNavPanel(det, dist, mins) {
+  const panel = getNavPanel();
+  const stColor = {finalizado:'#1DAA8A', en_proceso:'#1A7AC7', pendiente:'#F5C842'};
+  const color = stColor[det.estado] || '#888';
+  panel.innerHTML = `
+    <div style="width:36px;height:36px;border-radius:50%;background:${color};
+      display:flex;align-items:center;justify-content:center;color:white;
+      font-size:14px;font-weight:700;flex-shrink:0">${det.orden}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${det.cliente_nombre}</div>
+      <div style="font-size:11px;color:#64748B;margin-top:1px">${det.direccion||''}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:18px;font-weight:700;color:#0F5A9E;line-height:1">${mins} min</div>
+      <div style="font-size:11px;color:#64748B">${dist} km</div>
+    </div>
+    <a href="https://www.google.com/maps/dir/${lastPos?lastPos.lat+','+lastPos.lng:''}/${det.lat},${det.lng}"
+      target="_blank" style="background:#1A7AC7;color:white;border-radius:8px;padding:6px 10px;
+      text-decoration:none;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0">
+      🗺️ Maps
+    </a>`;
+}
+
+async function drawRouteToNext(dets) {
+  if (!lastPos || !dets.length) return;
+
+  // Encontrar el próximo cliente pendiente o en proceso
+  const next = dets.find(d => d.estado === 'en_proceso') || dets.find(d => d.estado === 'pendiente');
+  if (!next || !next.lat || !next.lng) return;
+
+  // Quitar ruta anterior
+  if (techRouteLayer) { mapTech.removeLayer(techRouteLayer); techRouteLayer = null; }
+
+  // Calcular ruta OSRM
+  const route = await getOSRMRoute(lastPos.lat, lastPos.lng, next.lat, next.lng);
+
+  // Dibujar ruta tipo Waze — línea gruesa con borde
+  const routeGroup = L.layerGroup();
+
+  // Sombra de la ruta (borde oscuro)
+  L.polyline(route.coords, {
+    color: '#0A4A8E', weight: 8, opacity: 0.4, lineCap:'round', lineJoin:'round'
+  }).addTo(routeGroup);
+
+  // Línea principal azul
+  L.polyline(route.coords, {
+    color: '#1A7AC7', weight: 5, opacity: 0.95, lineCap:'round', lineJoin:'round'
+  }).addTo(routeGroup);
+
+  // Flechas de dirección en la ruta
+  if (route.coords.length > 2) {
+    const mid = route.coords[Math.floor(route.coords.length/2)];
+    L.marker(mid, {icon: L.divIcon({
+      html:'<div style="color:#0F5A9E;font-size:16px;font-weight:700">➤</div>',
+      className:'', iconAnchor:[8,8]
+    })}).addTo(routeGroup);
+  }
+
+  techRouteLayer = routeGroup;
+  routeGroup.addTo(mapTech);
+
+  // Panel de navegación
+  updateNavPanel(next, route.dist, route.mins);
+
+  // Ajustar vista para mostrar técnico + destino
+  const bounds = L.latLngBounds([[lastPos.lat, lastPos.lng], [next.lat, next.lng]]);
+  route.coords.forEach(c => bounds.extend(c));
+  mapTech.fitBounds(bounds, {padding:[50,50], maxZoom:16});
+}
+
+async function initTechMap(dets=[]) {
+  techRouteDets = dets;
+  const el = document.getElementById('map-tech');
+  if (!el) return;
+  if (!mapTech) {
+    mapTech = L.map('map-tech', {zoomControl:true}).setView([4.8133,-75.6961], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {attribution:'© OpenStreetMap',maxZoom:19}).addTo(mapTech);
+  }
+
+  // Limpiar capas pero conservar tile layer
+  mapTech.eachLayer(l=>{ if(l instanceof L.Marker||l instanceof L.Polyline||l instanceof L.LayerGroup) mapTech.removeLayer(l); });
+  techRouteLayer = null;
+  techMarker = null;
+
+  const stColor={finalizado:'#1DAA8A', en_proceso:'#1A7AC7', pendiente:'#94A3B8'};
+
+  // Markers de clientes con pins tipo Waze
+  dets.forEach(d=>{
+    if(!d.lat||!d.lng) return;
+    const color = stColor[d.estado]||'#888';
+    L.marker([d.lat,d.lng],{icon:mkDestIcon(d.orden, color)})
+      .addTo(mapTech)
+      .bindPopup(`
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:160px">
+          <div style="font-size:13px;font-weight:700">${d.cliente_nombre}</div>
+          <div style="font-size:11px;color:#64748B;margin:3px 0">${d.direccion||''}</div>
+          <span style="background:${color};color:white;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600">
+            ${d.estado==='finalizado'?'✓ Finalizado':d.estado==='en_proceso'?'● En proceso':'⏳ Pendiente'}
+          </span>
+        </div>`);
+  });
+
+  // Marker del técnico
+  if(lastPos) {
+    techMarker = L.marker([lastPos.lat,lastPos.lng],{icon:mkMyIcon(), zIndexOffset:1000})
+      .addTo(mapTech)
+      .bindPopup('<strong>📍 Tu posición actual</strong>');
+  }
+
+  // Dibujar ruta al próximo cliente
+  await drawRouteToNext(dets);
+
+  // Auto-refresh del mapa cada 10s
+  if (techMapInterval) clearInterval(techMapInterval);
+  techMapInterval = setInterval(async () => {
+    if (document.getElementById('p-t-ruta')?.classList.contains('active') && lastPos) {
+      // Actualizar solo la posición del técnico y la ruta
+      if (techMarker) techMarker.setLatLng([lastPos.lat, lastPos.lng]);
+      await drawRouteToNext(techRouteDets);
+    }
+  }, 10000);
+
+  setTimeout(()=>mapTech.invalidateSize(),200);
+}
+
+function updateTechMapPos(lat, lng) {
+  if (!mapTech) return;
+  if (techMarker) {
+    techMarker.setLatLng([lat, lng]);
+    // Redibujar ruta si el técnico se movió más de 30 metros
+    drawRouteToNext(techRouteDets);
+  } else {
+    techMarker = L.marker([lat, lng], {icon:mkMyIcon(), zIndexOffset:1000})
+      .addTo(mapTech)
+      .bindPopup('<strong>📍 Tu posición actual</strong>');
+  }
+  // Actualizar indicador GPS
+  const ind = document.getElementById('loc-indicator');
+  if (ind) {
+    ind.innerHTML = '<i class="ti ti-map-pin" style="color:var(--sun)"></i> GPS activo<br><span style="color:rgba(255,255,255,.95);font-weight:600">En vivo ●</span>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   TÉCNICO: RUTA
+══════════════════════════════════════════ */
+async function loadTechRuta() {
+  try {
+    const hh = new Date().getHours();
+    const sal = hh < 12 ? 'Buenos días,' : hh < 18 ? 'Buenas tardes,' : 'Buenas noches,';
+    const salEl = document.getElementById('tech-saludo');
+    if (salEl) salEl.textContent = sal;
+    document.getElementById('tech-name-hd').textContent = user?.nombre?.split(' ')[0] || '—';
+    const fechaHd = document.getElementById('tech-fecha-hd');
+    if (fechaHd) fechaHd.textContent = new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'});
+    const data = await apiCall(`/api/rutas/tecnico/${user.id}/hoy`);
+    const dets = data.detalles || [];
+    window._rutaDetalles = dets; // Para validaciones
+    const done = dets.filter(d=>d.estado==='finalizado').length;
+    document.getElementById('pill-done').textContent  = done;
+    document.getElementById('pill-pend').textContent  = dets.filter(d=>d.estado!=='finalizado').length;
+    document.getElementById('pill-total').textContent = dets.length;
+
+    if (!dets.length) {
+      document.getElementById('ruta-cards').innerHTML = `
+        <div style="text-align:center;padding:48px 20px;color:var(--text2)">
+          <i class="ti ti-beach" style="font-size:48px;display:block;margin-bottom:12px;color:var(--text3)"></i>
+          <strong style="font-size:16px;color:var(--text)">Sin ruta asignada hoy</strong>
+          <p style="margin-top:6px;font-size:13px">El administrador aún no ha asignado tu ruta</p>
+        </div>`;
+      initTechMap([]);
+      return;
+    }
+
+    const stColor={finalizado:'var(--teal)',en_proceso:'var(--blue)',pendiente:'#94A3B8'};
+    const stBadge={finalizado:'b-done',en_proceso:'b-active',pendiente:'b-pending'};
+    const stLabel={finalizado:'Finalizado',en_proceso:'En proceso',pendiente:'Pendiente'};
+
+    document.getElementById('ruta-cards').innerHTML = dets.map(d=>`
+      <div class="svc-card ${d.estado==='finalizado'?'done-svc':''} ${d.estado==='en_proceso'?'active-svc open':''}" id="svc-${d.id}">
+        <div class="svc-hdr" onclick="this.closest('.svc-card').classList.toggle('open')">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="step-num" style="background:${stColor[d.estado]}">${d.orden}</div>
+            <div style="min-width:0">
+              <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.cliente_nombre}</div>
+              <div style="font-size:12px;color:var(--text2)"><i class="ti ti-map-pin" style="font-size:11px"></i> ${d.direccion}</div>
+            </div>
+          </div>
+          <div style="flex-shrink:0">
+            <span class="badge ${stBadge[d.estado]}">${stLabel[d.estado]}</span>
+            ${d.hora_inicio?`<div style="font-size:10px;color:var(--text3);text-align:right;margin-top:3px">${d.hora_inicio}${d.hora_fin?' — '+d.hora_fin:''}</div>`:''}
+          </div>
+        </div>
+        <div class="svc-body">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+            <i class="ti ti-building"></i> ${d.tipo_piscina} &nbsp;·&nbsp; <i class="ti ti-tool"></i> ${d.servicio_principal||'Mantenimiento'}
+            ${d.cliente_notas?`<br><i class="ti ti-note" style="color:var(--amber)"></i> <strong>${d.cliente_notas}</strong>`:''}
+          </div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(d.direccion)}" 
+             target="_blank" 
+             style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#1A7AC7,#0F5A9E);color:white;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;margin-bottom:12px;box-shadow:0 2px 8px rgba(26,122,199,.3)">
+            <i class="ti ti-navigation" style="font-size:18px"></i>
+            <div><div>Navegar con Google Maps</div><div style="font-size:11px;opacity:.8;font-weight:400">${d.direccion}</div></div>
+            <i class="ti ti-external-link" style="margin-left:auto;font-size:14px;opacity:.7"></i>
+          </a>
+          ${d.estado!=='finalizado'?`
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${d.estado==='pendiente'?`<button class="btn teal sm" onclick="iniciarServicio(${d.id})"><i class="ti ti-player-play"></i> Iniciar servicio</button>`:''}
+            <button class="btn primary sm" onclick="abrirRegistro(${d.id},${d.cliente_id},'${d.cliente_nombre.replace(/'/g,"\\'")}')"><i class="ti ti-clipboard-list"></i> Registrar visita</button>
+            <button class="btn sm danger" onclick="abrirNovedad(${d.id},${d.cliente_id})"><i class="ti ti-alert-triangle"></i> Novedad</button>
+          </div>`:`<div style="color:var(--teal-dk);font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px"><i class="ti ti-circle-check" style="font-size:18px"></i> Servicio completado y reportado ✓</div>`}
+        </div>
+      </div>`).join('');
+
+    initTechMap(dets);
+  } catch(e) { toast('Error cargando ruta: '+e.message,'error'); }
+}
+
+async function iniciarServicio(did) {
+  const now = new Date().toTimeString().slice(0,5);
+  const lat = lastPos?.lat, lng = lastPos?.lng;
+  const btn = event?.target?.closest?.('button');
+  if (btn) { btn.disabled=true; btn.innerHTML='<span class="spinner"></span>'; }
+  try {
+    await apiCall(`/api/rutas/detalle/${did}/estado`, {method:'PATCH',
+      body:JSON.stringify({estado:'en_proceso', hora_inicio:now, lat, lng})});
+    toast('Servicio iniciado ✓','success');
+    await loadTechRuta();
+    // Abrir la card del servicio recién iniciado
+    const card = document.getElementById(`svc-${did}`);
+    if (card) { card.classList.add('open'); card.scrollIntoView({behavior:'smooth', block:'center'}); }
+  } catch(e) {
+    toast('Error al iniciar: '+e.message,'error');
+  } finally {
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="ti ti-player-play"></i> Iniciar'; }
+  }
+}
+
+function abrirRegistro(did, cid, name) {
+  // Validar que el servicio fue iniciado
+  const _dets = window._rutaDetalles || [];
+  const _det = _dets.find(d => d.id === did);
+  if (_det && _det.estado === 'pendiente') {
+    toast('⚠️ Primero inicia el servicio con el botón "Iniciar servicio"','warning');
+    return;
+  }
+  detalleId = did; clienteId = cid; clienteNombre = name;
+  document.getElementById('reg-cli-name').textContent = name;
+  document.getElementById('reg-info').textContent =
+    new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}) +
+    (lastPos ? ` · GPS: ${lastPos.lat.toFixed(5)}, ${lastPos.lng.toFixed(5)}` : ' · Sin GPS');
+  // Reset fotos
+  fotoUrls = {1:null,2:null,3:null};
+  [1,2,3].forEach(n=>removeFoto({stopPropagation:()=>{}},n));
+  // Reset checkboxes
+  for(let i=1;i<=8;i++) document.getElementById('a'+i).checked=false;
+  document.getElementById('reg-obs').value='';
+  techNav('t-registrar',null);
+}
+
+function abrirNovedad(did, cid) {
+  detalleId = did; clienteId = cid;
+  document.getElementById('nov-desc').value='';
+  fotoNovUrls = {1:null,2:null};
+  videoNovUrl = null;
+  [1,2].forEach(n=>removeFotoNov({stopPropagation:()=>{}},n));
+  novTipo = 'Daño en equipos';
+  document.querySelectorAll('#nov-tipos button').forEach((b,i)=>{
+    b.className = i===0 ? 'prio-btn sel-high' : 'prio-btn';
+    b.style.borderRadius = 'var(--r)';
+  });
+  document.querySelectorAll('.prio-btns .prio-btn,.prio-btns div[onclick]').forEach((b,i)=>{
+    b.className = i===0 ? 'prio-btn sel-low' : 'prio-btn';
+  });
+  techNav('t-novedad',null);
+}
+
+let videoRepUrl = null;
+
+function triggerVideoRep() { document.getElementById('file-video-rep').click(); }
+
+async function handleVideoRep(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (file.size > 100*1024*1024) { toast('Video muy pesado (máx 100MB)','warning'); return; }
+  const slot = document.getElementById('slot-video-rep');
+  slot.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--blue)"><span class="spinner" style="border-color:rgba(15,90,158,.2);border-top-color:var(--blue)"></span><span>Subiendo...</span></div>';
+  try {
+    const fd = new FormData(); fd.append('file', file, file.name);
+    const res = await fetch(API+'/api/upload', {method:'POST', headers:token?{'Authorization':'Bearer '+token}:{}, body:fd});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'Error');
+    videoRepUrl = data.url;
+    slot.innerHTML = `<video src="${data.url}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r)" controls></video>
+      <button class="foto-remove" onclick="removeVideoRep(event)"><i class="ti ti-x"></i></button>`;
+    toast('Video subido ✓','success');
+  } catch(err) {
+    toast('Error subiendo video: '+err.message,'error');
+    slot.innerHTML = '<span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span><span class="foto-label" style="color:var(--blue)">Grabar o subir video</span><button class="foto-remove" onclick="removeVideoRep(event)"><i class="ti ti-x"></i></button>';
+  }
+  e.target.value='';
+}
+
+function removeVideoRep(e) {
+  e.stopPropagation(); videoRepUrl=null;
+  document.getElementById('slot-video-rep').innerHTML = '<span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span><span class="foto-label" style="color:var(--blue)">Grabar o subir video del servicio</span><button class="foto-remove" onclick="removeVideoRep(event)"><i class="ti ti-x"></i></button>';
+}
+
+async function submitReporte() {
+  const labels=['Limpieza de filtros','Ajuste pH y cloro','Revisión bomba y filtro','Aspirado','Emboquillado','Recuperación','Detección de fugas','Otros'];
+  const acts=[];
+  for(let i=1;i<=8;i++) if(document.getElementById('a'+i).checked) acts.push(labels[i-1]);
+  if (!clienteId) { toast('Error: sin cliente seleccionado. Vuelve a la ruta.','error'); return; }
+
+  // ── VALIDACIONES ANTES DE CERRAR ─────────────────────────────────
+  const estado = document.getElementById('reg-estado').value;
+
+  // 1. Debe seleccionar al menos una actividad si el servicio está finalizado
+  if (estado === 'finalizado' && acts.length === 0) {
+    toast('⚠️ Selecciona al menos una actividad realizada antes de cerrar','warning'); return;
+  }
+
+  // 2. Si hay novedad abierta en el formulario, advertir
+  const tieneNovedad = (fotoNovUrls[1] || fotoNovUrls[2] || videoNovUrl ||
+    (document.getElementById('nov-desc')?.value?.trim().length > 0));
+  if (tieneNovedad) {
+    const ok = confirm('⚠️ Tienes una novedad sin enviar.\n\n¿Deseas cerrar el servicio sin enviarla primero?');
+    if (!ok) { techNav('t-novedad', null); return; }
+  }
+
+  // 3. Verificar que el servicio fue iniciado (tiene hora de inicio)
+  if (estado === 'finalizado' && detalleId) {
+    try {
+      const rutaData = await apiCall('/api/rutas/tecnico/' + user.id + '/hoy');
+      const det = (rutaData.detalles || []).find(d => d.id === detalleId);
+      if (det && det.estado === 'pendiente') {
+        toast('⚠️ Debes iniciar el servicio antes de finalizarlo','warning'); return;
+      }
+    } catch(e) { /* continuar */ }
+  }
+  const payload = {
+    ruta_detalle_id: detalleId,
+    cliente_id: clienteId,
+    tecnico_id: user.id,
+    estado_servicio: document.getElementById('reg-estado').value,
+    actividades: acts,
+    observaciones: document.getElementById('reg-obs').value,
+    evidencia_url: fotoUrls[1],
+    evidencia_url2: fotoUrls[2],
+    evidencia_url3: fotoUrls[3],
+    video_url: videoRepUrl,
+  };
+  try {
+    await apiCall('/api/reportes', {method:'POST', body:JSON.stringify(payload)});
+    toast('Servicio registrado correctamente ✓','success');
+    techNav('t-ruta',null);
+    loadTechRuta();
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+let videoNovUrl = null;
+
+function triggerVideoNov() {
+  document.getElementById('file-video-nov').click();
+}
+
+async function handleVideoNov(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const maxMB = 50;
+  if (file.size > maxMB * 1024 * 1024) { toast(`Video muy pesado (máx ${maxMB}MB)`, 'warning'); return; }
+  const slot = document.getElementById('slot-video-nov');
+  slot.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--blue)"><span class="spinner" style="border-color:rgba(15,90,158,.2);border-top-color:var(--blue)"></span><span>Subiendo video...</span></div>';
+  try {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    const res = await fetch(API + '/api/upload', {
+      method: 'POST',
+      headers: token ? {'Authorization': 'Bearer ' + token} : {},
+      body: fd
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error al subir');
+    videoNovUrl = data.url;
+    slot.innerHTML = `<video src="${data.url}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r)" controls></video>
+      <button class="foto-remove" id="btn-rm-vid-nov" onclick="removeVideoNov(event)"><i class="ti ti-x"></i></button>`;
+    toast('Video subido ✓', 'success');
+  } catch(err) {
+    toast('Error subiendo video: ' + err.message, 'error');
+    slot.innerHTML = `<span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span><span class="foto-label" style="color:var(--blue)">Grabar o subir video</span><button class="foto-remove" id="btn-rm-vid-nov" onclick="removeVideoNov(event)"><i class="ti ti-x"></i></button>`;
+  }
+  e.target.value = '';
+}
+
+function removeVideoNov(e) {
+  e.stopPropagation();
+  videoNovUrl = null;
+  const slot = document.getElementById('slot-video-nov');
+  slot.innerHTML = `<span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span><span class="foto-label" style="color:var(--blue)">Grabar o subir video del problema</span><button class="foto-remove" id="btn-rm-vid-nov" onclick="removeVideoNov(event)"><i class="ti ti-x"></i></button>`;
+}
+
+async function submitNovedad() {
+  const desc = document.getElementById('nov-desc').value.trim();
+  if (!desc) { toast('Escribe una descripción','warning'); return; }
+  const prioEl = document.querySelector('.prio-btn[class*="sel-"]');
+  const prioRaw = prioEl ? prioEl.dataset.val : 'media';
+  const prioMap = {'low':'baja','med':'media','high':'alta','baja':'baja','media':'media','alta':'alta'};
+  const prio = prioMap[prioRaw] || 'media';
+  // Obtener cliente_id de la ruta activa si no está seteado
+  if (!clienteId) {
+    try {
+      const rd = await apiCall(`/api/rutas/tecnico/${user.id}/hoy`);
+      const activo = (rd.detalles||[]).find(d=>d.estado==='en_proceso') || (rd.detalles||[])[0];
+      if (activo) { clienteId = activo.cliente_id; detalleId = activo.id; }
+    } catch(e) {}
+  }
+  if (!clienteId) { toast('Inicia un servicio antes de reportar una novedad','warning'); return; }
+  try {
+    await apiCall('/api/novedades', {method:'POST', body:JSON.stringify({
+      cliente_id: clienteId,
+      tecnico_id: user.id,
+      tipo: novTipo,
+      descripcion: desc,
+      prioridad: prio,
+      evidencia_url: fotoNovUrls[1],
+      evidencia_url2: fotoNovUrls[2],
+      video_url: videoNovUrl,
+    })});
+    toast('Novedad enviada al administrador ✓','success');
+    // Limpiar formulario de novedad
+    document.getElementById('nov-desc').value = '';
+    fotoNovUrls = {1:null, 2:null};
+    videoNovUrl = null;
+    [1,2].forEach(n => removeFotoNov({stopPropagation:()=>{}}, n));
+    const slotVid = document.getElementById('slot-video-nov');
+    if (slotVid) slotVid.innerHTML = '<span class="foto-placeholder" style="color:var(--blue)"><i class="ti ti-video-plus" style="font-size:26px"></i></span><span class="foto-label" style="color:var(--blue)">Grabar o subir video del problema</span><button class="foto-remove" id="btn-rm-vid-nov" onclick="removeVideoNov(event)"><i class="ti ti-x"></i></button>';
+    // Resetear tipo y prioridad
+    novTipo = '';
+    document.querySelectorAll('#nov-tipos button').forEach((b,i) => {
+      b.className = i===0 ? 'prio-btn sel-high' : 'prio-btn';
+      b.style.borderRadius = 'var(--r)';
+    });
+    document.querySelectorAll('.prio-btns .prio-btn').forEach((b,i) => {
+      b.className = i===0 ? 'prio-btn sel-low' : 'prio-btn';
+    });
+    techNav('t-ruta', null);
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+async function loadHistorial() {
+  try {
+    const data = await apiCall(`/api/reportes?tecnico_id=${user.id}&limit=30`);
+    document.getElementById('tbody-hist').innerHTML = data.length ? data.map(r=>{
+      const acts=JSON.parse(r.actividades||'[]');
+      const fotos=[r.evidencia_url,r.evidencia_url2,r.evidencia_url3].filter(Boolean);
+      return `<tr>
+        <td><strong>${r.cliente_nombre}</strong></td>
+        <td style="font-size:12px">${new Date(r.fecha).toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'})}</td>
+        <td style="font-size:11px">${acts.join(', ')||'—'}</td>
+        <td><div class="foto-thumbs">${fotos.map(u=>fotoThumbHtml(u)).join('')}${!fotos.length?'<span style="color:var(--text3);font-size:11px">Sin fotos</span>':''}</div></td>
+        <td><span class="badge ${r.estado_servicio==='finalizado'?'b-done':'b-active'}">${r.estado_servicio}</span></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text2);padding:32px">Sin historial</td></tr>';
+  } catch(e) {}
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id==='modal-notifs') loadNotifs();
+}
+function closeModal(id) {
+  if (id === 'modal-otp-clave' && _otpInterval) {
+    clearInterval(_otpInterval); _otpInterval = null;
+  } document.getElementById(id).classList.remove('open'); }
+
+async function loadNotifs() {
+  try {
+    const data = await apiCall('/api/novedades?estado=pendiente');
+    const pMap={alta:'aico-red',media:'aico-amber',baja:'aico-teal'};
+    document.getElementById('modal-notifs-body').innerHTML = data.length ?
+      data.map(n=>`<div class="alert-row">
+        <div class="alert-ico ${pMap[n.prioridad]||'aico-blue'}"><i class="ti ti-alert-triangle"></i></div>
+        <div style="flex:1"><div style="font-weight:600;font-size:13px">${n.tipo} — ${n.cliente_nombre}</div>
+          <div style="font-size:12px;color:var(--text2)">${n.tecnico_nombre} · <span class="badge b-${n.prioridad==='alta'?'high':n.prioridad==='media'?'med':'low'}">${n.prioridad}</span></div>
+        </div></div>`).join('') :
+      '<p style="color:var(--text2);text-align:center;padding:20px">Sin novedades pendientes ✓</p>';
+  } catch(e) {}
+}
+
+function setNovTipo(el, val) {
+  novTipo = val;
+  document.querySelectorAll('#nov-tipos button').forEach(b=>{b.className='prio-btn'; b.style.borderRadius='var(--r)'});
+  el.classList.add('sel-high'); el.style.borderRadius='var(--r)';
+}
+function setPrio(el, type) {
+  el.closest('.prio-btns').querySelectorAll('.prio-btn').forEach(b=>b.className='prio-btn');
+  el.classList.add('sel-'+type);
+}
+
+let toastT;
+function toast(msg, type='success') {
+  const t=document.getElementById('toast'), ic=document.getElementById('toast-icon');
+  document.getElementById('toast-msg').textContent=msg;
+  t.className='toast '+type;
+  ic.className=type==='success'?'ti ti-check':type==='error'?'ti ti-x':'ti ti-info-circle';
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ══════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════ */
+window.addEventListener('load',()=>{
+  if (token && user) initApp();
+  document.getElementById('l-pass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('l-email').addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});
+});
+
+</script>
+</body>
+</html
+    <!-- MODAL OTP CAMBIO CLAVE TÉCNICO -->
+    <div class="modal-overlay" id="modal-otp-clave" onclick="if(event.target===this)closeModal('modal-otp-clave')">
+      <div class="modal" style="max-width:440px">
+        <div class="modal-hd">
+          <h2><i class="ti ti-shield-lock" style="color:var(--blue)"></i> Cambio de contraseña seguro</h2>
+          <button class="modal-close" onclick="closeModal('modal-otp-clave')"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="info-banner teal" style="margin-bottom:14px">
+            <i class="ti ti-info-circle"></i>
+            <span>El técnico debe ingresar el código OTP que aparece en el panel del administrador.</span>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--blue-lt);border-radius:12px;margin-bottom:16px">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Código OTP actual</div>
+            <div id="otp-display" style="font-size:42px;font-weight:800;letter-spacing:10px;color:var(--blue);font-family:'Syne',sans-serif">------</div>
+            <div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+              <div style="font-size:12px;color:var(--text2)">Expira en</div>
+              <div id="otp-countdown" style="font-size:14px;font-weight:700;color:var(--blue);min-width:30px;text-align:center">--</div>
+              <div style="font-size:12px;color:var(--text2)">segundos</div>
+            </div>
+            <div style="margin-top:8px;height:4px;background:rgba(15,90,158,.15);border-radius:4px;overflow:hidden">
+              <div id="otp-bar" style="height:100%;background:var(--blue);transition:width .9s linear;border-radius:4px"></div>
+            </div>
+          </div>
+          <div class="frow">
+            <label class="flbl">Nueva contraseña para <strong id="otp-tec-nombre">—</strong></label>
+            <input type="password" class="finput" id="otp-nueva-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          </div>
+          <div class="frow" style="margin-top:10px">
+            <label class="flbl">Confirmar contraseña</label>
+            <input type="password" class="finput" id="otp-nueva-pass2" placeholder="Repetir contraseña" autocomplete="new-password">
+          </div>
+          <div style="margin-top:10px;padding:10px 12px;background:#FFF3CD;border-radius:8px;font-size:12px;color:#856404">
+            <i class="ti ti-lock"></i> El técnico debe ingresar este código en su pantalla de cambio de clave. El código cambia cada 45 segundos.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn ghost" onclick="closeModal('modal-otp-clave')">Cancelar</button>
+          <button class="btn primary" onclick="confirmarCambioClaveConOTP()"><i class="ti ti-lock-check"></i> Cambiar contraseña</button>
+        </div>
+      </div>
+    </div>
+    <!-- MODAL CAMBIO CLAVE -->
+    <div class="modal-overlay" id="modal-cambio-clave" onclick="if(event.target===this)closeModal('modal-cambio-clave')">
+      <div class="modal" style="max-width:420px">
+        <div class="modal-hd">
+          <h2><i class="ti ti-lock" style="color:var(--blue)"></i> Cambiar contraseña</h2>
+          <button class="modal-close" onclick="closeModal('modal-cambio-clave')"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="info-banner teal" style="margin-bottom:14px"><i class="ti ti-user"></i><span id="cc-nombre">—</span></div>
+          <div class="frow">
+            <label class="flbl">Nueva contraseña</label>
+            <input type="password" class="finput" id="cc-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          </div>
+          <div class="frow" style="margin-top:10px">
+            <label class="flbl">Confirmar contraseña</label>
+            <input type="password" class="finput" id="cc-pass2" placeholder="Repetir contraseña" autocomplete="new-password">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn ghost" onclick="closeModal('modal-cambio-clave')">Cancelar</button>
+          <button class="btn primary" onclick="guardarCambioClaveAdmin()"><i class="ti ti-lock-check"></i> Guardar</button>
+        </div>
+      </div>
+    </div>
+
+>

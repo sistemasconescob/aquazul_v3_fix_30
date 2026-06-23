@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Test Login</title></head>
+<body style="font-family:monospace;padding:30px;background:#111;color:#0f0;font-size:14px">
+<h2 style="color:#0f0">🔧 Test de Login - Aquazul</h2>
+<div id="out"></div>
+<script>
+var out = document.getElementById('out');
+function log(msg, color) {
+  out.innerHTML += '<div style="color:'+(color||'#0f0')+';margin:6px 0;padding:6px;background:#1a1a1a;border-left:3px solid '+(color||'#0f0')+'">'+msg+'</div>';
+}
+
+async function runTests() {
+  log('=== INICIANDO PRUEBAS ===', '#ff0');
+
+  // Test 1: Servidor activo
+  log('1. Probando conexión al servidor...', '#aaa');
+  try {
+    var r1 = await fetch('/api/health');
+    var d1 = await r1.json();
+    log('✅ Servidor OK: ' + JSON.stringify(d1), '#0f0');
+  } catch(e) {
+    log('❌ SERVIDOR NO RESPONDE: ' + e.message, '#f00');
+    log('   → Asegúrate que start.bat esté corriendo', '#f55');
+    return;
+  }
+
+  // Test 2: POST login
+  log('2. Probando login con admin@aquazul.co / Admin2024*...', '#aaa');
+  try {
+    var r2 = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: 'admin@aquazul.co', password: 'Admin2024*'})
+    });
+    var txt2 = await r2.text();
+    log('   Respuesta HTTP: ' + r2.status, r2.ok ? '#0f0' : '#f00');
+    log('   Body: ' + txt2.substring(0, 200), r2.ok ? '#0f0' : '#f55');
+    if (r2.ok) {
+      var d2 = JSON.parse(txt2);
+      log('✅ LOGIN OK! Usuario: ' + d2.user.nombre + ' / Rol: ' + d2.user.rol, '#0f0');
+      localStorage.setItem('az_token', d2.token);
+      localStorage.setItem('az_user', JSON.stringify(d2.user));
+      log('✅ Token guardado. <a href="/" style="color:#0af">→ IR AL SISTEMA</a>', '#0af');
+    } else {
+      log('❌ LOGIN FALLÓ', '#f00');
+    }
+  } catch(e) {
+    log('❌ ERROR en login: ' + e.message, '#f00');
+  }
+
+  // Test 3: Verificar qué usuarios existen
+  log('3. Verificando usuarios en BD...', '#aaa');
+  try {
+    var tok = localStorage.getItem('az_token');
+    var r3 = await fetch('/api/tecnicos', {
+      headers: tok ? {'Authorization': 'Bearer ' + tok} : {}
+    });
+    log('   /api/tecnicos: HTTP ' + r3.status, '#aaa');
+  } catch(e) {
+    log('   Error: ' + e.message, '#aaa');
+  }
+
+  log('=== PRUEBAS COMPLETADAS ===', '#ff0');
+}
+
+runTests();
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Seguimiento técnico — Aquazul Piscinas Sanas</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#F0F4F8;height:100vh;display:flex;flex-direction:column}
+.header{background:linear-gradient(135deg,#0F5A9E,#148A6E);padding:14px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.header-logo{width:38px;height:38px;background:white;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.header-logo svg{width:30px;height:28px}
+.header-brand{font-size:15px;font-weight:700;color:white}
+.header-sub{font-size:10px;color:rgba(255,255,255,.7);letter-spacing:.5px}
+#map{flex:1}
+.info-bar{background:white;padding:14px 20px;display:flex;align-items:center;gap:12px;border-top:1px solid #E2E8F0;box-shadow:0 -4px 12px rgba(0,0,0,.06);flex-shrink:0}
+.pulse-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.pulse-dot.live{background:#1DAA8A;animation:pulse 2s infinite}
+.pulse-dot.offline{background:#94A3B8}
+.pulse-dot.error{background:#C0392B}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,170,138,.4)}50%{box-shadow:0 0 0 8px rgba(29,170,138,0)}}
+.info-name{font-size:14px;font-weight:700;color:#1A2332}
+.info-time{font-size:12px;color:#64748B;margin-top:2px}
+.refresh-btn{margin-left:auto;background:#EBF5FB;border:none;color:#0F5A9E;padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="14" r="8" fill="#F5C842"/>
+      <path d="M4 28 Q15 22 26 28 Q37 34 48 28 Q53 25 57 28" stroke="#1A7AC7" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M6 38 Q18 31 30 37 Q42 43 54 37" stroke="#1DAA8A" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M4 33 L11 28 L4 43 Z" fill="#1DAA8A" opacity=".8"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-brand">AQUAZUL Piscinas Sanas</div>
+    <div class="header-sub">Seguimiento del técnico en tiempo real</div>
+  </div>
+</div>
+<div id="map"></div>
+<div class="info-bar">
+  <div class="pulse-dot offline" id="dot"></div>
+  <div>
+    <div class="info-name" id="info-name">Conectando...</div>
+    <div class="info-time" id="info-time">Obteniendo ubicación del técnico</div>
+  </div>
+  <button class="refresh-btn" onclick="refresh()">↻ Actualizar</button>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const API = window.location.origin + '/api';
+let map, marker, circle;
+
+map = L.map('map').setView([-4.8087,-75.6906], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+
+function techIcon(){
+  return L.divIcon({
+    html:`<div style="background:#0F5A9E;color:white;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:20px;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.3)">🔧</div>`,
+    className:'',iconAnchor:[19,19]
+  });
+}
+
+async function refresh() {
+  try {
+    const res = await fetch(API + '/ubicaciones');
+    const all = await res.json();
+    const entries = Object.entries(all);
+    if (!entries.length) { setStatus('offline','El técnico aún no ha iniciado su recorrido',''); return; }
+    const [tid, info] = entries[0];
+    const {lat, lng, nombre, timestamp} = info;
+    const ts = new Date(timestamp);
+    const diff = Math.round((Date.now() - ts.getTime()) / 60000);
+
+    if (!marker) {
+      marker = L.marker([lat,lng],{icon:techIcon()}).addTo(map).bindPopup(`<strong>${nombre}</strong><br>Técnico Aquazul`).openPopup();
+      circle = L.circle([lat,lng],{radius:60,color:'#1A7AC7',fillColor:'#1A7AC7',fillOpacity:.12,weight:2}).addTo(map);
+      map.setView([lat,lng],16);
+    } else {
+      marker.setLatLng([lat,lng]);
+      circle.setLatLng([lat,lng]);
+      map.panTo([lat,lng],{animate:true,duration:.5});
+    }
+    const timeStr = diff < 1 ? 'Ahora mismo' : `Hace ${diff} min`;
+    setStatus('live', `🔧 ${nombre} — en camino a tu piscina`, `Actualizado: ${timeStr} · ${ts.toLocaleTimeString('es-CO')}`);
+  } catch(e) {
+    setStatus('error','Error al obtener ubicación','Reintentando...');
+  }
+}
+
+function setStatus(type, name, time) {
+  document.getElementById('dot').className = 'pulse-dot ' + type;
+  document.getElementById('info-name').textContent = name;
+  document.getElementById('info-time').textContent = time;
+}
+
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>
